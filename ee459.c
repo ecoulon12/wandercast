@@ -6,6 +6,8 @@
 *
 ********************************************/
 
+#define I2C_ADDRESS 0x3D //0b0111101
+
 #include <avr/io.h>
 void io_pin_init();
 
@@ -58,16 +60,34 @@ void lcd_init(){
     // delay 500ms            Probably not needed but can't hurt
     delay_ms(500);
 	// Send the byte 0x38     Function Set: 2 lines
-    i2c_io(0xA0, 0x38, 8, NULL, 0)
+    // 0x80 indicates we are writing commands
+    i2c_io(I2C_ADDRESS, 0x80, 8, NULL, 0);
+    i2c_io(I2C_ADDRESS, 0x38, 8, NULL, 0);
 	// delay 120us
     delay_us(120);
 	// Send the byte 0x0f     Display on, cursor on, cursor blinks
+    i2c_io(I2C_ADDRESS, 0x80, 8, NULL, 0);
+    i2c_io(I2C_ADDRESS, 0x0f, 8, NULL, 0);
 	// delay 120us
     delay_us(120);
 	// Send the byte 0x01     Clear display
+    i2c_io(I2C_ADDRESS, 0x80, 8, NULL, 0);
+    i2c_io(I2C_ADDRESS, 0x01, 8, NULL, 0);
 	// delay 15ms
     delay_ms(15);
 	// Send the byte 0x06     Entry mode: cursor shifts right
+    i2c_io(I2C_ADDRESS, 0x80, 8, NULL, 0);
+    i2c_io(I2C_ADDRESS, 0x06, 8, NULL, 0);
 	// delay 120us
     delay_us(120);
+
+    //write something to the screen initially
+    // 0x40 indicates we are writing data
+    i2c_io(I2C_ADDRESS, 0x40, 8, NULL, 0);
+    i2c_io(I2C_ADDRESS, 0x48, 8, NULL, 0);
+    i2c_io(I2C_ADDRESS, 0x65, 8, NULL, 0);
+    i2c_io(I2C_ADDRESS, 0x6C, 8, NULL, 0);
+    i2c_io(I2C_ADDRESS, 0x6C, 8, NULL, 0);
+    i2c_io(I2C_ADDRESS, 0x6F, 8, NULL, 0);
+
 }
