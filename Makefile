@@ -13,7 +13,7 @@ FUSES      = -U hfuse:w:0xd9:m -U lfuse:w:0xe0:m
 #     2: CKSEL2  = 0         2: BOOTSIZ1  = 0        2: BODLEVEL2 = 1
 #     1: CKSEL1  = 0         1: BOOTSIZ0  = 0        1: BODLEVEL1 = 1
 #     0: CKSEL0  = 0         0: BOOTRST   = 1        0: BODLEVEL0 = 1
-# External clock source, start-up time = 14 clks + 65ms
+# External clock source, start-up time = 14 clks + 65ms	`
 # Don't output clock on PORTB0, don't divide clock by 8,
 # Boot reset vector disabled, boot flash size 2048 bytes,
 # Preserve EEPROM disabled, watch-dog timer off
