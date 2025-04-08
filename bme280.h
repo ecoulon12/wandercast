@@ -27,9 +27,16 @@
 #define BME280_HUM_MSB_REG_ADDR 0xFD
 #define BME280_HUM_LSB_REG_ADDR 0xFE
 
+// Masks to help do config stuff
+#define BME280_OSRS_T_MASK  0xE0
+#define BME280_OSRS_P_MASK  0x1C
+#define BME280_MODE_MASK    0x03
+
+
 // Public functions
 void bme280_init(void);
 void bme280_get_id();
 void bme280_read_reg(const char *str);
+uint8_t bme280_get_status();
 
 #endif

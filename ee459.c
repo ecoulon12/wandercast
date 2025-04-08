@@ -41,13 +41,22 @@ int main(void)
     lcd_write_string("Start of the program!");
 
     lcd_clear_screen();
-    bme280_get_id();
 
+    uint8_t minutes = 0;
+    char print_data[20];
+    snprintf(print_data, 20, "times sampled=%02d", minutes);
+    lcd_write_string(print_data);
     
 
     while(1) {
-        // PORTC ^= (1<<PC0);
-        // _delay_ms(500);
+        uint8_t status = bme280_get_status();
+
+        if (bme280_get_status()){
+            minutes++;
+            snprintf(print_data, 20, "times sampled=%02d", minutes);
+            lcd_write_string(print_data);
+            lcd_clear_screen();
+        }
         
     }
 

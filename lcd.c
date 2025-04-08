@@ -5,6 +5,7 @@
 #include <string.h>
 
 #define DEBUG_DELAY 200
+// #define DEBUG_LCD
 
 
 void lcd_init(){
@@ -26,6 +27,7 @@ void lcd_init(){
     // 0x40, 0x48, 0x65, 0x6C, 0x6C, 0x6f.
 
     // delay 500ms            Delays to help debug
+    #ifdef DEBUG_LCD
     PORTC |= (1<<PC0);
     _delay_ms(DEBUG_DELAY);
     PORTC &= ~(1<<PC0);
@@ -33,6 +35,9 @@ void lcd_init(){
     PORTC |= (1<<PC0);
     _delay_ms(DEBUG_DELAY);
     PORTC &= ~(1<<PC0);
+    #endif
+
+    _delay_ms(200);
 	// Send the byte 0x38     Function Set: 2 lines
     // 0x80 indicates we are writing commands
     i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, 0x38}, 2, NULL, 0);
@@ -54,15 +59,8 @@ void lcd_init(){
 
     // write something to the screen initially
     // 0x40 indicates we are writing data
-    uint8_t helloBuf[] = {0x40, 'H', 'e', 'l', 'l', 'o'};
-    i2c_io(LCD_I2C_ADDRESS, helloBuf, sizeof(helloBuf), NULL, 0);
 
     _delay_us(120);
-
-    uint8_t helloBuf2[] = {0x40, 'N', 'o','w'};
-    i2c_io(LCD_I2C_ADDRESS, helloBuf2, sizeof(helloBuf), NULL, 0);
-
-
 
 }
 

@@ -8,3 +8,9 @@ so we need to shift them to be 8bit (add in a 0 to the lsb)
 BME280 BAROMETER:
 - IMPORTANT: when writing init function, reference p17 of the datasheet
   It gives good advice for settings for weather monitoring specifically
+- bme280_init() explanation - basically, i needed to edit specific bits in each of the registers
+  without changing other bits. This means, you can't just write to the register because you don't
+  want to overwrite existing data. To get around this, i am reading the current register, changing the
+  bits using a masking routine, then writing it back to the device.
+  - That being said, i don't think this one is working yet? The main function is currently a test that 
+    should increment and print every time the status bit goes high (sample is being taken). 
