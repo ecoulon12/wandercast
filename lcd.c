@@ -4,7 +4,6 @@
 #include <util/delay.h>
 #include <string.h>
 
-#define I2C_ADDRESS 0x7A //0b0111101
 #define DEBUG_DELAY 200
 
 
@@ -36,32 +35,32 @@ void lcd_init(){
     PORTC &= ~(1<<PC0);
 	// Send the byte 0x38     Function Set: 2 lines
     // 0x80 indicates we are writing commands
-    i2c_io(I2C_ADDRESS, (uint8_t[]){0x80, 0x38}, 2, NULL, 0);
+    i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, 0x38}, 2, NULL, 0);
     //i2c_io(I2C_ADDRESS, 0x38, 3, NULL, 0);
 	// delay 120us
     _delay_us(120);
 	// Send the byte 0x0f     Display on, cursor on, cursor blinks
-    i2c_io(I2C_ADDRESS, (uint8_t[]){0x80, 0x0F}, 2, NULL, 0);
+    i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, 0x0F}, 2, NULL, 0);
 	// delay 120us
     _delay_us(120);
 	// Send the byte 0x01     Clear display
-    i2c_io(I2C_ADDRESS, (uint8_t[]){0x80, 0x01}, 2, NULL, 0);
+    i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, 0x01}, 2, NULL, 0);
 	// delay 15ms
     _delay_ms(15);
 	// Send the byte 0x06     Entry mode: cursor shifts right
-    i2c_io(I2C_ADDRESS, (uint8_t[]){0x80, 0x06}, 2, NULL, 0);
+    i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, 0x06}, 2, NULL, 0);
 	// delay 120us
     _delay_us(120);
 
     // write something to the screen initially
     // 0x40 indicates we are writing data
     uint8_t helloBuf[] = {0x40, 'H', 'e', 'l', 'l', 'o'};
-    i2c_io(I2C_ADDRESS, helloBuf, sizeof(helloBuf), NULL, 0);
+    i2c_io(LCD_I2C_ADDRESS, helloBuf, sizeof(helloBuf), NULL, 0);
 
     _delay_us(120);
 
     uint8_t helloBuf2[] = {0x40, 'N', 'o','w'};
-    i2c_io(I2C_ADDRESS, helloBuf2, sizeof(helloBuf), NULL, 0);
+    i2c_io(LCD_I2C_ADDRESS, helloBuf2, sizeof(helloBuf), NULL, 0);
 
 
 
@@ -72,11 +71,11 @@ void lcd_write_string(const char* str){
     int len = strlen(str);
     buf[0] = 0x40; // control byte for data
     memcpy(&buf[1], str, len);
-    i2c_io(I2C_ADDRESS, buf, len + 1, NULL, 0);
+    i2c_io(LCD_I2C_ADDRESS, buf, len + 1, NULL, 0);
 }
 
 void lcd_clear_screen(){
-    i2c_io(I2C_ADDRESS, (uint8_t[]){0x80, 0x01}, 2, NULL, 0);
+    i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, 0x01}, 2, NULL, 0);
     _delay_ms(15);
 }
 

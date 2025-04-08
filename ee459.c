@@ -1,8 +1,8 @@
 /********************************************
 *
-*  Name:
-*  Section:
-*  Assignment:
+*  Name: Erin Coulon, Vic Nunez, Drew Uramoto
+*  Section: EE459L
+*  Assignment: Wandercast
 *
 ********************************************/
 
@@ -21,6 +21,7 @@
 #include <string.h>
 #include "i2c.h"
 #include "lcd.h"
+#include "bme280.h"
 
 void io_pin_init();
 void lcd_init();
@@ -38,6 +39,10 @@ int main(void)
 
     lcd_clear_screen();
     lcd_write_string("Start of the program!");
+
+    lcd_clear_screen();
+    bme280_get_id();
+
     
 
     while(1) {
