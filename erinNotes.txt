@@ -1,0 +1,5 @@
+NOTES I OBSERVED WHILE WORKING
+I2C: When finding which address to use, most i2c devices are 7 bit addresses, 
+so we need to shift them to be 8bit (add in a 0 to the lsb)
+- For example, the LCD address is listed as 0x3D (00111101),
+  but i needed to pass it in as (0x3D << 1) or 0x7A (01111010) for it to WORKING
