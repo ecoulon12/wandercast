@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #define DEBUG_DELAY 200
+#define INIT_DEBUG
 
 void bme280_init(void);
 void bme280_get_id();

@@ -1,0 +1,16 @@
+.h files: COPY LINES 3-11
+
+#ifndef SENSOR_H
+#define SENSOR_H
+
+#include <stdint.h>
+#include <avr/io.h>
+
+// ADD FUNCTION PROTOTYPES HERE
+
+#endif
+
+.c files: COPY LINES 15-16
+
+#include <util/delay.h>
+#include <stdio.h>
