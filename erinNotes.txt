@@ -14,3 +14,6 @@ BME280 BAROMETER:
   bits using a masking routine, then writing it back to the device.
   - That being said, i don't think this one is working yet? The main function is currently a test that 
     should increment and print every time the status bit goes high (sample is being taken). 
+
+
+  Trying to see if i can push changes
