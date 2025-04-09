@@ -8,6 +8,7 @@ File list:
 ee459.c : main loop, can edit to test things
 
 I2C: [DO NOT EDIT]
+
     i2c.c : function definitions for i2c (written by weber) -- DO NOT EDIT
         - i2c_init(bdiv) -- initialize things for i2c
         - i2c_io( params ) -- perform i2c read/write transactions
@@ -16,6 +17,7 @@ I2C: [DO NOT EDIT]
         - contains i2c function prototypes
 
 BAROMETER : (most of these are unfinished)
+
     bme280.c : function definitions for barometer
         - bme280_init(void) -- initialize barometer chip based on recommended settings in the datasheet (for weather monitoring applications)
         - bme280_get_id() -- prints out the ID of the chip (primarily used to test if chip is functioning, upon success, should print 0x60)
@@ -26,6 +28,7 @@ BAROMETER : (most of these are unfinished)
         - contains barometer function prototypes, variable definitions (i2c address, register addresses), debug mode ctrls
 
 LCD : (current functions are finished, but we can add more as we need)
+
     lcd.c : function definitions for the lcd screen
         - lcd_init(void) -- initialize lcd 
         - lcd_write_string(const char *str) -- write a string to the lcd screen
