@@ -45,3 +45,18 @@ HOW TO ADD NEW FUNCTIONS IN A NEW .C FILE:
 2. In Makefile, add sensor.o into line 4 ("OBJECTS" line)
 3. Go to h_file_template.txt, copy .h file contents into sensor.h, add in prototypes for functions and any variable definitions
 4. in h_file_template.txt, copy .c file contents into sensor.c, and start writing function implementations
+
+HOW TO 
+1. Clone the repo
+- go to the github wandercast page 
+- press the drop down arrow on the green "Code" button
+- copy the SSH key
+- in your terminal, go to where you want to add the wandercast folder
+- use the command "git clone {SSH KEY}"
+
+2. Editing files
+- you can do this in any 
+
+3. Running Code
+- plug in 
+- if you suspect compilation errors, just use the "make" command
