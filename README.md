@@ -1,5 +1,9 @@
 # wandercast
 
+WORKFLOW GUIDE:
+Since we are not using branches, we need to sycnhronize verbally, so please text in the GC if you are changing any files
+Also, before editing anything, rememeber to pull for any new changes so we don't have to handle merge conflicts
+
 File list:
 ee459.c : main loop, can edit to test things
 
