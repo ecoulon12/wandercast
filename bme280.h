@@ -39,5 +39,6 @@ void bme280_get_id();
 uint8_t bme280_read_reg(uint8_t);
 uint8_t bme280_get_status();
 void bme280_print_reg(uint8_t);
+void bme280_trigger_forced_measurement();
 
 #endif

@@ -155,4 +155,19 @@ uint8_t bme280_read_reg(uint8_t reg){
     return reg_readout;
 }
 
+void bme280_trigger_forced_measurement() {
+    uint8_t ctrl_meas;
+
+    // Read current ctrl_meas to preserve oversampling settings
+    uint8_t reg = BME280_CTRL_MEAS_REG_ADDR;
+    i2c_io(BME280_I2C_ADDR, &reg, 1, &ctrl_meas, 1);
+
+    // Set mode bits [1:0] to 01 (forced mode)
+    ctrl_meas &= ~BME280_MODE_MASK;    // Clear mode bits (bit 1 and 0)
+    ctrl_meas |= 0x01;                 // Set mode = 01 (forced mode)
+
+    uint8_t write_buf[2] = {BME280_CTRL_MEAS_REG_ADDR, ctrl_meas};
+    i2c_io(BME280_I2C_ADDR, write_buf, 2, NULL, 0);
+}
+
 

@@ -53,19 +53,29 @@ int main(void)
     
 
     while(1) {
-        status = bme280_get_status();
+        // status = bme280_get_status();
+        bme280_trigger_forced_measurement();
+        bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
+        _delay_ms(1000);
 
-        if (bme280_get_status()){
-            minutes++;
-            snprintf(print_data, 20, "times sampled=%02d", minutes);
-            lcd_write_string(print_data);
-            lcd_clear_screen();
+
+        // if (bme280_get_status()){
+        //     minutes++;
+        //     snprintf(print_data, 20, "times sampled=%02d", minutes);
+        //     lcd_write_string(print_data);
+        //     lcd_clear_screen();
+        // }
+        while (bme280_get_status()) {
+            _delay_ms(1); // Wait until measuring bit is cleared
+            lcd_write_string("HELOOOOOO");
         }
-        // bme280_print_reg(BME280_CONFIG_REG_ADDR);
+        lcd_clear_screen();
+        
+        bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
     
         // // lcd_print_uint("hi", num);
-        // _delay_ms(500);
-        // lcd_clear_screen();
+        _delay_ms(1000);
+        lcd_clear_screen();
 
 
         
