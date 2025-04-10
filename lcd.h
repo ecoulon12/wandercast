@@ -11,5 +11,6 @@
 void lcd_init(void);
 void lcd_write_string(const char *str);
 void lcd_clear_screen(void);
+void lcd_print_uint(const char* ,uint8_t);
 
 #endif

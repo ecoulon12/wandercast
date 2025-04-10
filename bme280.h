@@ -36,7 +36,8 @@
 // Public functions
 void bme280_init(void);
 void bme280_get_id();
-void bme280_read_reg(const char *str);
+uint8_t bme280_read_reg(uint8_t);
 uint8_t bme280_get_status();
+void bme280_print_reg(uint8_t);
 
 #endif

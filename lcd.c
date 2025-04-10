@@ -77,3 +77,10 @@ void lcd_clear_screen(){
     _delay_ms(15);
 }
 
+void lcd_print_uint(const char *label, uint8_t num) {
+    char print_data[32];
+    snprintf(print_data, sizeof(print_data), "%s=0x%02X", label, num);
+    lcd_write_string(print_data);
+}
+
+

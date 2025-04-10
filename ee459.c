@@ -41,15 +41,19 @@ int main(void)
     lcd_write_string("Start of the program!");
 
     lcd_clear_screen();
+    bme280_init();
 
     uint8_t minutes = 0;
     char print_data[20];
     snprintf(print_data, 20, "times sampled=%02d", minutes);
     lcd_write_string(print_data);
+    uint8_t status;
+    // bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
+    // while(1){}
     
 
     while(1) {
-        uint8_t status = bme280_get_status();
+        status = bme280_get_status();
 
         if (bme280_get_status()){
             minutes++;
@@ -57,6 +61,13 @@ int main(void)
             lcd_write_string(print_data);
             lcd_clear_screen();
         }
+        // bme280_print_reg(BME280_CONFIG_REG_ADDR);
+    
+        // // lcd_print_uint("hi", num);
+        // _delay_ms(500);
+        // lcd_clear_screen();
+
+
         
     }
 

@@ -49,7 +49,7 @@ HOW TO ADD NEW FUNCTIONS IN A NEW .C FILE:
 3. Go to h_file_template.txt, copy .h file contents into sensor.h, add in prototypes for functions and any variable definitions
 4. in h_file_template.txt, copy .c file contents into sensor.c, and start writing function implementations
 
-HOW TO 
+HOW TO USE GIT TO DO THINGS
 1. Clone the repo
 - go to the github wandercast page 
 - press the drop down arrow on the green "Code" button
