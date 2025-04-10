@@ -47,7 +47,7 @@ ISR(PCINT1_vect)
 
 weather_kit_init(){
     PCICR |= (1 << PCIE1);  // Enable PCINT on Port C
-    PCMSK1 |= (1 << PCINT12 | 1 << PCINT11); // Interrupt on PC4, PC3
+    PCMSK1 |= (1 << PCINT10 | 1 << PCINT11); // Interrupt on PC2, PC3
 }
 
 
