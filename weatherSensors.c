@@ -5,6 +5,7 @@ int windSpdRaw;
 bool windTick = 1; //required as the wind speed sensor is contact based, and the signal can vary in length based on wind speed
 float windSpd;
 
+
 //N.B. Very unoptimized code, just trying to get something that works
 int main(void)
 {
@@ -43,3 +44,11 @@ ISR(PCINT1_vect)
     }
 }
         
+
+weather_kit_init(){
+    PCICR |= (1 << PCIE1);  // Enable PCINT on Port C
+    PCMSK1 |= (1 << PCINT12 | 1 << PCINT11); // Interrupt on PC4, PC3
+}
+
+
+
