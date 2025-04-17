@@ -1,13 +1,15 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <stdbool.h>
+#include "lcd.h"
 
-int windSpdRaw;
-bool windTick = 1; //required as the wind speed sensor is contact based, and the signal can vary in length based on wind speed
-float windSpd;
+int windSpdRaw = 0;
+bool windTick = true; //required as the wind speed sensor is contact based, and the signal can vary in length based on wind speed
+float windSpd = 0;
 
 
 //N.B. Very unoptimized code, just trying to get something that works
-int main(void)
+void weatherSensorsSW(void)
 {
     TCCR1B |= (1 << WGM12);     // Set for CTC mode.  OCR1A = modulus
     TIMSK1 |= (1 << OCIE1A);    // Enable CTC interrupt
@@ -16,7 +18,6 @@ int main(void)
     TCCR1B |= ((1 << CS10) | (1 << CS12));      // Set prescaler for divide by 1024,
                                 // also starts timer
     
-
 
     while (1) {
 
@@ -33,10 +34,13 @@ ISR(TIMER1_COMPA_vect)
 
 ISR(PCINT1_vect)
 {
-    if(PINC & windTick)
+    char printData[32];
+    if(PINC && windTick)
     {
         windSpdRaw += 1;
         windTick = 0;
+        snprintf(printData, 32, "Wind Speed =%02x",windSpdRaw);
+        lcd_write_string(printData);
     }
     else if (~PINC & ~windTick)
     {
@@ -45,7 +49,7 @@ ISR(PCINT1_vect)
 }
         
 
-weather_kit_init(){
+void weather_kit_init(){
     PCICR |= (1 << PCIE1);  // Enable PCINT on Port C
     PCMSK1 |= (1 << PCINT10 | 1 << PCINT11); // Interrupt on PC2, PC3
 }
