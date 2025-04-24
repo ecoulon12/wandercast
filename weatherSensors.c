@@ -6,8 +6,8 @@
 int windSpdRaw = 0;
 bool windTick = true; //required as the wind speed sensor is contact based, and the signal can vary in length based on wind speed
 float windSpd = 0;
-unsigned char windDirRaw
-char windDir;
+char windDir[2];
+
 
 
 //N.B. Very unoptimized code, just trying to get something that works
@@ -54,7 +54,8 @@ void windVane(){
     ADCSRA |= (1 << ADSC); // Starts ADC sample cycle
     while((ADCSRA & 1) != 0){ // Waits for ADC sample to return
     }
-     = ADCH; // Sample retrieved, stored in windDir
+    // Sample retrieved
+
     /*CALIBRATION VALUES
     (V/5) * 255 = ADC
     DIR|   V   | ADC
@@ -65,7 +66,34 @@ void windVane(){
     S  = 1.425 = 72.7
     SW = 3.097 = 158.0
     W  = 4.621 = 235.7
-    NW = 4.341 = 221.4         */
+    NW = 4.341 = 221.4 */
+    if(190 <= ADCH <= 200){
+        windDir = 'N ';
+    }
+    else if(110 <= ADCH <= 120){
+        windDir = 'NE';
+    }
+    else if(20 <= ADCH <= 30){
+        windDir = 'E ';
+    }
+    else if(40 <= ADCH <= 50){
+        windDir = 'SE';
+    }
+    else if(70 <= ADCH <= 80){
+        windDir = 'S ';
+    }
+    else if(150 <= ADCH <= 160){
+        windDir = 'SW';
+    }
+    else if(230 <= ADCH <= 240){
+        windDir = 'W ';
+    }
+    else if(215<= ADCH <= 225){
+        windDir = 'NW';
+    }
+    else{
+        windDir = 'XX';
+    }
 }
 
         
