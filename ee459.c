@@ -40,10 +40,14 @@ int main(void)
 
     lcd_clear_screen();
     lcd_write_string("Start of the program!");
-
+    _delay_ms(1000);
     lcd_clear_screen();
     bme280_init();
     weatherSensors_init();
+    _delay_ms(2000);
+    lcd_clear_screen();
+
+
 
     uint8_t minutes = 0;
     char print_data[20];
@@ -74,7 +78,7 @@ int main(void)
         lcd_clear_screen();
         
         //bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
-        windVane();
+        //windVane();
         // // lcd_print_uint("hi", num);
         lcd_write_string("End of loop");
         _delay_ms(1000);

@@ -29,11 +29,14 @@ ISR(TIMER1_COMPA_vect)
     windSpd = 0.6 * windSpdRaw; //runs every 4 seconds, 2.4km windspeed @ 1 tick/sec
 }
 */
-/*
+
 ISR(PCINT1_vect)
 {
+    //code for anenometer, linked to PC2
+    lcd_write_string("interrupt");
+    /*
     char printDataSpd[32];
-    if(PINC && windTick)
+    if((PINC & (1 << PC2)) && windTick) 
     {
         windSpdRaw += 1;
         windTick = 0;
@@ -44,8 +47,9 @@ ISR(PCINT1_vect)
     {
         windTick = 1;
     }
+    */
 }
-*/
+
 void windVane(){ 
     char printDataDir[32];
     ADCSRA |= (1 << ADSC); // Starts ADC sample cycle
@@ -111,6 +115,7 @@ void weatherSensors_init(){
                                                                         -Sets readings to 8-bit definition (ADLAR)
                                                                         -Sets active read channel to PC1 (MUX register)*/
     ADCSRA |= (1 << ADPS0 | 1 << ADPS1 | 1 << ADPS2 | 1 << ADEN); //Sets ADC clock scalar to 128 (ADPS register) and enables ADC (ADEN)
+    lcd_write_string("weatherSensor init");
 }
 
 
