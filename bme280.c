@@ -147,6 +147,7 @@ void bme280_print_reg(uint8_t reg_addr){
     char print_data[32];
     snprintf(print_data, 32, "config=0x%02X", reg_to_print);
     lcd_write_string(print_data);
+    _delay_ms(2000);
 
 
 }

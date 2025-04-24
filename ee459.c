@@ -54,6 +54,8 @@ int main(void)
     snprintf(print_data, 20, "times sampled=%02d", minutes);
     lcd_write_string(print_data);
     uint8_t status;
+    lcd_write_string("after sample");
+    _delay_ms(2000);
     // bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
     // while(1){}
     
@@ -74,6 +76,7 @@ int main(void)
         while (bme280_get_status()) {
             _delay_ms(1); // Wait until measuring bit is cleared
             lcd_write_string("HELOOOOOO");
+            _delay_ms(2000);
         }
         lcd_clear_screen();
         
@@ -89,7 +92,8 @@ int main(void)
 
         
     }
-
+    lcd_write_string("after while");
+    _delay_ms(2000);
     return 0;   /* never reached */
 }
 
