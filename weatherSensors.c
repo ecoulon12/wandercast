@@ -19,7 +19,7 @@ float windDirRaw;
 //N.B. Very unoptimized code, just trying to get something that works
 void weatherSensors(void)
 {
-
+    //Moved all init code to init function
  
 }
 
