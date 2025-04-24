@@ -1,17 +1,20 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "lcd.h"
 
 int windSpdRaw = 0;
 bool windTick = true; //required as the wind speed sensor is contact based, and the signal can vary in length based on wind speed
 float windSpd = 0;
-char windDir[2];
+float windDirRaw;
 
 
 
 //N.B. Very unoptimized code, just trying to get something that works
-void weatherSensorsSW(void)
+void weatherSensors(void)
 {
     TCCR1B |= (1 << WGM12);     // Set for CTC mode.  OCR1A = modulus
     TIMSK1 |= (1 << OCIE1A);    // Enable CTC interrupt
@@ -25,7 +28,7 @@ void weatherSensorsSW(void)
 
     }
 
-    return 0;   
+    return ;   
 }
 
 
@@ -34,14 +37,15 @@ ISR(TIMER1_COMPA_vect)
     windSpd = 0.6 * windSpdRaw; //runs every 4 seconds, 2.4km windspeed @ 1 tick/sec
 }
 
+/*
 ISR(PCINT1_vect)
 {
-    char printData[32];
+    char printDataSpd[32];
     if(PINC && windTick)
     {
         windSpdRaw += 1;
         windTick = 0;
-        snprintf(printData, 32, "Wind Speed =%02x",windSpdRaw); // print function to test
+        snprintf(printDataSpd, 32, "Wind Speed =%02x",windSpdRaw); // print function to test
         lcd_write_string(printData);
     }
     else if (~PINC & ~windTick)
@@ -49,11 +53,14 @@ ISR(PCINT1_vect)
         windTick = 1;
     }
 }
-
+*/
 void windVane(){ 
+    char printDataDir[32];
     ADCSRA |= (1 << ADSC); // Starts ADC sample cycle
     while((ADCSRA & 1) != 0){ // Waits for ADC sample to return
     }
+    
+    windDirRaw = ADCH;
     // Sample retrieved
 
     /*CALIBRATION VALUES
@@ -67,33 +74,34 @@ void windVane(){
     SW = 3.097 = 158.0
     W  = 4.621 = 235.7
     NW = 4.341 = 221.4 */
-    if(190 <= ADCH <= 200){
-        windDir = 'N ';
+    if((windDirRaw <= 200) && (windDirRaw >= 190)){
+        snprintf(printDataDir, 32, "Wind Speed = N");
     }
-    else if(110 <= ADCH <= 120){
-        windDir = 'NE';
+    else if((windDirRaw <= 120) && (windDirRaw >= 110)){
+        snprintf(printDataDir, 32, "Wind Speed = NE");
     }
-    else if(20 <= ADCH <= 30){
-        windDir = 'E ';
+    else if((windDirRaw <= 30) && (windDirRaw >= 20)){
+        snprintf(printDataDir, 32, "Wind Speed = E");
     }
-    else if(40 <= ADCH <= 50){
-        windDir = 'SE';
+    else if((windDirRaw <= 50) && (windDirRaw >= 40)){
+        snprintf(printDataDir, 32, "Wind Speed = SE");
     }
-    else if(70 <= ADCH <= 80){
-        windDir = 'S ';
+    else if((windDirRaw <= 80) && (windDirRaw >= 70)){
+        snprintf(printDataDir, 32, "Wind Speed = S");
     }
-    else if(150 <= ADCH <= 160){
-        windDir = 'SW';
+    else if((windDirRaw <= 160) && (windDirRaw >= 150)){
+        snprintf(printDataDir, 32, "Wind Speed = SW");
     }
-    else if(230 <= ADCH <= 240){
-        windDir = 'W ';
+    else if((windDirRaw <= 240) && (windDirRaw >= 230)){
+        snprintf(printDataDir, 32, "Wind Speed = W");
     }
-    else if(215<= ADCH <= 225){
-        windDir = 'NW';
+    else if((windDirRaw <= 225) && (windDirRaw >= 215)){
+        snprintf(printDataDir, 32, "Wind Speed = NW");
     }
     else{
-        windDir = 'XX';
+        snprintf(printDataDir, 32, "Wind Speed = XX");
     }
+    lcd_write_string(printDataDir);
 }
 
         
