@@ -23,12 +23,12 @@ void weatherSensors(void)
  
 }
 
-/*
+
 ISR(TIMER1_COMPA_vect)
 {
-    windSpd = 0.6 * windSpdRaw; //runs every 4 seconds, 2.4km windspeed @ 1 tick/sec
+    // windSpd = 0.6 * windSpdRaw; //runs every 4 seconds, 2.4km windspeed @ 1 tick/sec
 }
-*/
+
 
 ISR(PCINT1_vect)
 {
@@ -105,7 +105,7 @@ void windVane(){
 void weatherSensors_init(){
     TCCR1B |= (1 << WGM12);     // Set for CTC mode.  OCR1A = modulus
     TIMSK1 |= (1 << OCIE1A);    // Enable CTC interrupt
-    sei();                      // Enable global interrupts
+     sei();                      // Enable global interrupts
     OCR1A = 38400;              // Set the counter modulus (for 0.25hz)
     TCCR1B |= ((1 << CS10) | (1 << CS12));      // Set prescaler for divide by 1024,
                                                 // also starts timer

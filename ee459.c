@@ -56,13 +56,20 @@ int main(void)
     uint8_t status;
     lcd_write_string("after sample");
     _delay_ms(2000);
+    lcd_clear_screen();
     // bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
     // while(1){}
     
 
     while(1) {
+        lcd_write_string("entered while");
+        _delay_ms(2000);
+        lcd_clear_screen();
+        _delay_ms(2000);
         // status = bme280_get_status();
-        bme280_trigger_forced_measurement();
+        // bme280_trigger_forced_measurement();
+        lcd_write_string("after forced");
+        _delay_ms(2000);
         bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
         _delay_ms(1000);
 
