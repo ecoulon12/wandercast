@@ -22,6 +22,7 @@
 #include "i2c.h"
 #include "lcd.h"
 #include "bme280.h"
+#include "weatherSensors.h"
 
 void io_pin_init();
 void lcd_init();
@@ -42,6 +43,7 @@ int main(void)
 
     lcd_clear_screen();
     bme280_init();
+    weatherSensors_init();
 
     uint8_t minutes = 0;
     char print_data[20];
@@ -71,11 +73,14 @@ int main(void)
         }
         lcd_clear_screen();
         
-        bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
-    
+        //bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
+        windVane();
         // // lcd_print_uint("hi", num);
+        lcd_write_string("End of loop");
         _delay_ms(1000);
         lcd_clear_screen();
+        
+        
 
 
         

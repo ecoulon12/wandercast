@@ -6,6 +6,8 @@
 #include <string.h>
 #include "lcd.h"
 
+void weatherSensors_init();
+
 int windSpdRaw = 0;
 bool windTick = true; //required as the wind speed sensor is contact based, and the signal can vary in length based on wind speed
 float windSpd = 0;
@@ -13,30 +15,20 @@ float windDirRaw;
 
 
 
+
 //N.B. Very unoptimized code, just trying to get something that works
 void weatherSensors(void)
 {
-    TCCR1B |= (1 << WGM12);     // Set for CTC mode.  OCR1A = modulus
-    TIMSK1 |= (1 << OCIE1A);    // Enable CTC interrupt
-    sei();                      // Enable global interrupts
-    OCR1A = 38400;              // Set the counter modulus (for 0.25hz)
-    TCCR1B |= ((1 << CS10) | (1 << CS12));      // Set prescaler for divide by 1024,
-                                // also starts timer
-    
 
-    while (1) {
-
-    }
-
-    return ;   
+ 
 }
 
-
+/*
 ISR(TIMER1_COMPA_vect)
 {
     windSpd = 0.6 * windSpdRaw; //runs every 4 seconds, 2.4km windspeed @ 1 tick/sec
 }
-
+*/
 /*
 ISR(PCINT1_vect)
 {
@@ -106,7 +98,13 @@ void windVane(){
 
         
 
-void weather_kit_init(){
+void weatherSensors_init(){
+    TCCR1B |= (1 << WGM12);     // Set for CTC mode.  OCR1A = modulus
+    TIMSK1 |= (1 << OCIE1A);    // Enable CTC interrupt
+    sei();                      // Enable global interrupts
+    OCR1A = 38400;              // Set the counter modulus (for 0.25hz)
+    TCCR1B |= ((1 << CS10) | (1 << CS12));      // Set prescaler for divide by 1024,
+                                                // also starts timer
     PCICR |= (1 << PCIE1);  // Enable PCINT on Port C
     PCMSK1 |= (1 << PCINT10 | 1 << PCINT11); // Interrupt on PC2, PC3
     ADMUX |= (1 << REFS0 | ~(1 << REFS1) | (1 << ADLAR) | 1 << MUX0); /*  -Sets ADC range from 0-5V (REFS register)
