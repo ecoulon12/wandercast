@@ -61,7 +61,7 @@ void windVane(){
     }
     windDirRaw = ADCH;
 
-    snprintf(printVane, 20, "ADC=%8x, wDR = %03D", ADCH, windDirRaw);
+    snprintf(printVane, 20, "ADC=%8X, wDR = %03D", ADCH, windDirRaw);
     lcd_write_string(printVane);
     _delay_ms(1000);
     lcd_clear_screen();
@@ -78,6 +78,7 @@ void windVane(){
     SW = 3.097 = 158.0
     W  = 4.621 = 235.7
     NW = 4.341 = 221.4 */
+
     if((windDirRaw <= 200) && (windDirRaw >= 190)){
         lcd_write_string("Wind Dir = N");
     }

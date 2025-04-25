@@ -102,7 +102,7 @@ int main(void)
 void io_pin_init(){
     // init everything as outputs ( PB0-PB5, PB7, PC0-PC5, PD0-PD7 )
     DDRD = 0xFF;  // 0xFF = 1111 1111 (all bits set to 1)
-    DDRC = 0x3F; // 0011 1111
+    DDRC = (1 << PC5 | 1 << PC4 | 1 << PC0  ); // 0011 0001
     DDRB = 0xBF; // 1011 1111
     // don't work : PB3, PC0, PD
 
