@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <util/delay.h>
 #include "lcd.h"
 
 void weatherSensors_init();
@@ -34,6 +35,8 @@ ISR(PCINT1_vect)
 {
     //code for anenometer, linked to PC2
     lcd_write_string("interrupt");
+    _delay_ms(500);
+    lcd_clear_screen();
     /*
     char printDataSpd[32];
     if((PINC & (1 << PC2)) && windTick) 
@@ -51,12 +54,17 @@ ISR(PCINT1_vect)
 }
 
 void windVane(){ 
-    char printDataDir[32];
+    char printVane[20];
     ADCSRA |= (1 << ADSC); // Starts ADC sample cycle
-    while((ADCSRA & 1) != 0){ // Waits for ADC sample to return
+    while((ADCSRA & (1 << ADSC)) != 0){ // Waits for ADC sample to return
+        
     }
-    
     windDirRaw = ADCH;
+
+    snprintf(printVane, 20, "ADC=%8x, wDR = %03D", ADCH, windDirRaw);
+    lcd_write_string(printVane);
+    _delay_ms(1000);
+    lcd_clear_screen();
     // Sample retrieved
 
     /*CALIBRATION VALUES
@@ -71,33 +79,34 @@ void windVane(){
     W  = 4.621 = 235.7
     NW = 4.341 = 221.4 */
     if((windDirRaw <= 200) && (windDirRaw >= 190)){
-        snprintf(printDataDir, 32, "Wind Speed = N");
+        lcd_write_string("Wind Dir = N");
     }
     else if((windDirRaw <= 120) && (windDirRaw >= 110)){
-        snprintf(printDataDir, 32, "Wind Speed = NE");
+        lcd_write_string("Wind Dir = NE");
     }
     else if((windDirRaw <= 30) && (windDirRaw >= 20)){
-        snprintf(printDataDir, 32, "Wind Speed = E");
+        lcd_write_string("Wind Dir = E");
     }
     else if((windDirRaw <= 50) && (windDirRaw >= 40)){
-        snprintf(printDataDir, 32, "Wind Speed = SE");
+        lcd_write_string("Wind Dir = SE");
     }
     else if((windDirRaw <= 80) && (windDirRaw >= 70)){
-        snprintf(printDataDir, 32, "Wind Speed = S");
+        lcd_write_string("Wind Dir = S");
     }
     else if((windDirRaw <= 160) && (windDirRaw >= 150)){
-        snprintf(printDataDir, 32, "Wind Speed = SW");
+        lcd_write_string("Wind Dir = SW");
     }
     else if((windDirRaw <= 240) && (windDirRaw >= 230)){
-        snprintf(printDataDir, 32, "Wind Speed = W");
+        lcd_write_string("Wind Dir = W");
     }
     else if((windDirRaw <= 225) && (windDirRaw >= 215)){
-        snprintf(printDataDir, 32, "Wind Speed = NW");
+        lcd_write_string("Wind Dir = NW");
     }
     else{
-        snprintf(printDataDir, 32, "Wind Speed = XX");
+        lcd_write_string("Wind Dir = XX");
     }
-    lcd_write_string(printDataDir);
+
+    _delay_ms(1000);
 }
 
         
@@ -111,11 +120,12 @@ void weatherSensors_init(){
                                                 // also starts timer
     PCICR |= (1 << PCIE1);  // Enable PCINT on Port C
     PCMSK1 |= (1 << PCINT10 | 1 << PCINT11); // Interrupt on PC2, PC3
-    ADMUX |= (1 << REFS0 | ~(1 << REFS1) | (1 << ADLAR) | 1 << MUX0); /*  -Sets ADC range from 0-5V (REFS register)
-                                                                        -Sets readings to 8-bit definition (ADLAR)
-                                                                        -Sets active read channel to PC1 (MUX register)*/
-    ADCSRA |= (1 << ADPS0 | 1 << ADPS1 | 1 << ADPS2 | 1 << ADEN); //Sets ADC clock scalar to 128 (ADPS register) and enables ADC (ADEN)
+    ADMUX |= ((1 << REFS0) | (1 << ADLAR) | (1 << MUX0)); /*  -Sets ADC range from 0-5V (REFS register)
+                                                        -Sets readings to 8-bit definition (ADLAR)
+                                                        -Sets active read channel to PC1 (MUX register)*/
+    ADCSRA |= ((1 << ADPS0) | (1 << ADPS1) | (1 << ADPS2) | (1 << ADEN)); //Sets ADC clock scalar to 128 (ADPS register) and enables ADC (ADEN)
     lcd_write_string("weatherSensor init");
+    _delay_ms(500);
 }
 
 

@@ -44,7 +44,6 @@ int main(void)
     lcd_clear_screen();
     bme280_init();
     weatherSensors_init();
-    _delay_ms(2000);
     lcd_clear_screen();
 
 
@@ -54,24 +53,20 @@ int main(void)
     snprintf(print_data, 20, "times sampled=%02d", minutes);
     lcd_write_string(print_data);
     uint8_t status;
-    lcd_write_string("after sample");
-    _delay_ms(2000);
+    //lcd_write_string("after sample");
+    _delay_ms(500);
     lcd_clear_screen();
     // bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
     // while(1){}
     
 
     while(1) {
-        lcd_write_string("entered while");
-        _delay_ms(2000);
-        lcd_clear_screen();
-        _delay_ms(2000);
-        // status = bme280_get_status();
-        // bme280_trigger_forced_measurement();
-        lcd_write_string("after forced");
-        _delay_ms(2000);
-        bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
-        _delay_ms(1000);
+        //status = bme280_get_status();
+        //bme280_trigger_forced_measurement(); One of these statements is causing the loop to freeze
+        windVane();
+
+        //bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
+
 
 
         // if (bme280_get_status()){
@@ -88,8 +83,9 @@ int main(void)
         lcd_clear_screen();
         
         //bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
-        //windVane();
-        // // lcd_print_uint("hi", num);
+        // lcd_print_uint("hi", num);
+
+        
         lcd_write_string("End of loop");
         _delay_ms(1000);
         lcd_clear_screen();
@@ -99,8 +95,7 @@ int main(void)
 
         
     }
-    lcd_write_string("after while");
-    _delay_ms(2000);
+    
     return 0;   /* never reached */
 }
 
