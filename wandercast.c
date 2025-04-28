@@ -32,6 +32,7 @@ enum weather_prediction {rain, norain}; // etc.
 // Global variables
 volatile enum state current_state = sleep_period;
 volatile uint32_t seconds_elapsed = 0;
+volatile changed = 1;
 
 
 // Forward declarations
@@ -81,6 +82,8 @@ int main(void){
         // UPDATE THE SCREEN HERE if needed
         if (changed){
             // update LCD here
+            print_status(1,2,3,4,5,6);
+            changed = 0;
         }
 
     }
@@ -163,25 +166,25 @@ ISR(TIMER1_OVF_vect){
         lcd_write_string(buffer);
         changed = 1;
 
-        _delay_ms(2000;)
+        _delay_ms(2000);
     }
 }
 
 
 void print_status(int pres, int temp, int hum, int wspeed, int wdir, int prediction){
     lcd_clear_screen();
-    lcd_move_cursor();
-    char buffy[16];
+    lcd_move_cursor(0,0);
+    char buffy[32];
     snprintf(buffy, sizeof(buffy), "T:%2dC,P:%2dhPa,H:%2d", temp, pres, hum);
     lcd_write_string(buffy);
 
-    lcd_move_cursor();
-    char buffy2[16];
+    lcd_move_cursor(0,1);
+    char buffy2[32];
     snprintf(buffy2, sizeof(buffy2), "Speed:%2dmph,Dir:%2ddeg", wspeed, wdir);
     lcd_write_string(buffy2);
 
-    lcd_move_cursor();
-    char buffy3[16];
+    lcd_move_cursor(0,2);
+    char buffy3[32];
     snprintf(buffy3, sizeof(buffy3), "Forecast: %2d", prediction);
-    lcd_write_string(buffy3);
+    //lcd_write_string(buffy3);
 }
