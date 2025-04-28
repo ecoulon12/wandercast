@@ -27,10 +27,10 @@
 
 struct PressureData {
     int t[5];
-    int i;
+    int currPres;
 };
 
-#define SLEEP_PERIOD_S 600 // 10 min * 60 seconds = 600s
+#define SLEEP_PERIOD_S 60 // 10 min * 60 seconds = 600s
 // Enum definitions
 enum state {sleep_period, sampling_period};
 enum weather_prediction {rain, norain}; // etc.
@@ -46,7 +46,8 @@ volatile uint32_t hum = 0;
 volatile int dir = 0;
 volatile int speed = 0;
 volatile int rainfall_sleep_um = 0;
-int test = 1;
+int test = 0;
+volatile char ptrend;
 
 
 // Forward declarations
@@ -57,9 +58,8 @@ int get_wind_direction();
 void start_timer_sleep_mode();
 void start_timer_sample_mode();
 void send_alert(int alert_num);
-void print_status(int pres, int temp, int hum, int wspeed, int rain, int wdir);
-char getPressureTrend(struct PressureData pd);
-void print_status(int pres, int temp, int rainfall, int wspeed, int rain, int wdir);
+char getPressureTrend();
+void print_status(int pres, int temp, int rainfall, int wspeed, int rain, const char* pred);
 void io_pin_init();
 
 
@@ -78,33 +78,21 @@ int main(void){
     start_timer_sleep_mode();
 
     while(1){
-        lcd_write_string("hello");
-        _delay_ms(1000);
-        radio_debug_print_register(0x2F);
-        _delay_ms(1000);
+        if (test){
 
-        if (!test){
-            lcd_move_cursor(0,0);
-            lcd_write_string("test:");
-            speed = get_wind_speed();
-            dir = get_wind_direction();
-            rainfall_sleep_um = get_rain_depth();
-            //print_status(1,2,rainfall_sleep_um,speed,dir,6);
-
-            //lcd_clear_screen();
-            lcd_move_cursor(0,1);
-            char buffy5[32];
-            snprintf(buffy5, sizeof(buffy5), "WindSpeed :%2dkph", speed);
-            lcd_write_string(buffy5);
-            lcd_move_cursor(0,2);
-            char buffy6[32];
-            snprintf(buffy6, sizeof(buffy6), "Rainfall :%2dmm", rainfall_sleep_um);
-            lcd_write_string(buffy6);
-            lcd_move_cursor(0,3);
-            char buffy4[32];
-            snprintf(buffy4, sizeof(buffy4), "Wind Dir:%2ddeg", dir);
-            lcd_write_string(buffy4);
+            lcd_clear_screen();
+            lcd_write_string("sampling ...");
+            _delay_ms(500);
+            lcd_clear_screen();
             
+            // Fetch and sample for sensor data
+            get_pressure_temp_hum(&temp, &pres, &hum);
+            ptrend = getPressureTrend();
+            speed = get_wind_speed();
+            rainfall_sleep_um = get_rain_depth();
+            dir = get_wind_direction();
+
+            current_state = sleep_period;
             changed = 1;
         }
         if (current_state == sleep_period && !test){
@@ -119,28 +107,28 @@ int main(void){
             lcd_write_string("sampling ...");
             _delay_ms(500);
             lcd_clear_screen();
+            
+            // Fetch and sample for sensor data
             get_pressure_temp_hum(&temp, &pres, &hum);
+            ptrend = getPressureTrend();
             speed = get_wind_speed();
             rainfall_sleep_um = get_rain_depth();
             dir = get_wind_direction();
 
-            //enum weather_prediction prediction = zambretti_forecast();
-            // store or send prediction somewhere
-
             current_state = sleep_period;
             changed = 1;
             start_timer_sleep_mode();
+
+
             
             //radio_send(zambretti()); // return the zambretti prediction as a char array
         }
         // UPDATE THE SCREEN HERE if needed
         if (changed){
             // update LCD here
-            //print_status(1,2,rainfall_sleep_um,speed,dir,6);
+            print_status(ptrend, pdata.currPres, rainfall_sleep_um , speed ,dir , zambretti_forecast(pdata.currPres,ptrend, dir, speed));
             //changed = 0;
         }
-
-        //get_pressure_temp_hum();
 
     }
 }
@@ -149,32 +137,32 @@ void get_pressure_temp_hum(int32_t *temp, uint32_t *pres, uint32_t *hum){
     uint16_t timeout = 0;
     // float temp, press, hum;
 
+    if (real){
     // bme280_trigger_measurement();
-    // while (bme280_is_measuring()) {
-    //     _delay_ms(2);
-    //     timeout += 2;
-    //     if (timeout > 100) {
-    //         lcd_clear_screen();
-    //         lcd_write_string("Measure Fail");
-    //         _delay_ms(500);
-    //         changed = 1;
-    //         break;  
-    //     }
-    // }
-    // bme280_read_environment(temp, pres, hum);
-    // return;
+        // while (bme280_is_measuring()) {
+        //     _delay_ms(2);
+        //     timeout += 2;
+        //     if (timeout > 100) {
+        //         lcd_clear_screen();
+        //         lcd_write_string("Measure Fail");
+        //         _delay_ms(500);
+        //         changed = 1;
+        //         break;  
+        //     }
+        // }
+        // bme280_read_environment(temp, pres, hum);
+        // return;
 
-    //return temp pres hum ;
-    // STORE TEMP, PRESS, HUM SOMEWHERE
-    int fakePressure[5] = { 1,2,3,4,5};
+        //return temp pres hum ;
+        // STORE TEMP, PRESS, HUM SOMEWHERE
+    } else{
+        int fakePressure[5] = { 1011,1011,1011,1011,900};
 
-    int i = 0;
-    for (i = 0; i<5; i++){
-        pdata.t[i] = fakePressure[i];
-        char bufs[32];
-        snprintf(bufs, sizeof(bufs), "PRES:%d %2d %2d", i, pdata.t[i], fakePressure[i]);
-        lcd_write_string(bufs);
-        _delay_ms(3000);
+        int i = 0;
+        pdata.currPres = fakePressure[4];
+        for (i = 0; i<5; i++){
+            pdata.t[i] = fakePressure[i];
+        }
     }
 }
 
@@ -233,7 +221,7 @@ ISR(TIMER1_OVF_vect){
         // Update LCD
         lcd_clear_screen();
         char buffer[16];
-        snprintf(buffer, sizeof(buffer), "Time: %lu Sec", seconds_elapsed / 60);
+        snprintf(buffer, sizeof(buffer), "Time: %lu Sec", seconds_elapsed);
         lcd_write_string(buffer);
         changed = 1;
 
@@ -242,11 +230,11 @@ ISR(TIMER1_OVF_vect){
 }
 
 
-void print_status(int pres, int temp, int rainfall, int wspeed, int wdir, int prediction){
+void print_status(int temp, int pres, int rainfall, int wspeed, int wdir,  const char* pred){
     lcd_clear_screen();
     lcd_move_cursor(0,0);
     char buffy[32];
-    snprintf(buffy, sizeof(buffy), "T:%2dC,P:%2dhPa", temp, pres);
+    snprintf(buffy, sizeof(buffy), "T:%c P:%4dhPa", temp, pres);
     lcd_write_string(buffy);
 
     lcd_move_cursor(0,1);
@@ -259,7 +247,7 @@ void print_status(int pres, int temp, int rainfall, int wspeed, int wdir, int pr
     snprintf(buffy4, sizeof(buffy4), "Wind Dir:%2ddeg", wdir);
     lcd_write_string(buffy4);
 
-    _delay_ms(500);
+    _delay_ms(1000);
 
     lcd_clear_screen();
     lcd_move_cursor(0,0);
@@ -268,15 +256,20 @@ void print_status(int pres, int temp, int rainfall, int wspeed, int wdir, int pr
     lcd_write_string(buffy5);
 
     lcd_move_cursor(0,1);
+    lcd_write_string("Forecast: ");
+
+    lcd_move_cursor(0,2);
     char buffy3[32];
-    snprintf(buffy3, sizeof(buffy3), "Forecast: %2d", prediction);
-    //lcd_write_string(buffy3);
+    snprintf(buffy3, sizeof(buffy3), "%s", pred);
+    lcd_write_string(buffy3);
+
+    _delay_ms(1000);
 }
 
-char getPressureTrend(struct PressureData pd){
+char getPressureTrend(){
     // get average
     // get trend
-    int diff = pd.t[4] - pd.t[0];
+    int diff = pdata.t[4] - pdata.t[0];
 
     if (diff > 5) {         // threshold to avoid noise
         return 'r';           // rising
