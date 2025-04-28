@@ -31,10 +31,12 @@ void lcd_init();
 
 int main(void)
 {
+    TWSR = 0; // Set prescalar for 1
+    TWBR = BDIV ; // Set bit rate register
     // Your program goes here
     //init stuff here
     io_pin_init();
-    // radio_init();
+    radio_init();
     lcd_init();
 
     // write_reg(REG_OPMODE, MODE_CONTINUOUS_WAVE);  // 0x98
@@ -48,9 +50,6 @@ int main(void)
     radio_debug_print_register(0x30); // Should print 0xD4
     radio_debug_print_register(0x01); // Should print 0x04
 
-
-    TWSR = 0; // Set prescalar for 1
-    TWBR = BDIV ; // Set bit rate register
 
     //lcd_init();
 
