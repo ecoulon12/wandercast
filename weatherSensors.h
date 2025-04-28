@@ -6,7 +6,7 @@
 
 //Public functions
 void weatherSensors_init();
-double windVane();
+int windVane();
 double windSpeed();
 
 #endif

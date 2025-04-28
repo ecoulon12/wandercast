@@ -9,10 +9,11 @@
 
 
 //global vars
-int windSpdRaw = 0;
-bool windFlag = 0;
-double windSpd;
-double windDirRaw;
+volatile int windSpdRaw = 0;
+volatile double windSpd = 0;
+volatile double windDirRaw = 0;
+static int windDirDeg = 0 ;
+int* tracker = &windDirDeg;
 
 
 
@@ -24,10 +25,10 @@ ISR(TIMER1_COMPA_vect)
     // }
     
     //  //runs every 4 seconds, 2.4km windspeed @ 1 tick/sec
-    char printIntrpt[20];
-    snprintf(printIntrpt, 20, "Spd = %2d", windSpdRaw / 2);
-    lcd_write_string(printIntrpt);
-    _delay_ms(100);
+    // char printIntrpt[20];
+    // snprintf(printIntrpt, 20, "Spd = %2d", windSpdRaw / 2);
+    // lcd_write_string(printIntrpt);
+    // _delay_ms(100);
 
     // windSpdRaw = 0;
 }
@@ -77,19 +78,22 @@ void weatherSensors_init(){
 }
 
 
-double windVane(){ 
-    //char printVane[20];
+int windVane(){ 
+    
     ADCSRA |= (1 << ADSC); // Starts ADC sample cycle
     while((ADCSRA & (1 << ADSC)) != 0){ // Waits for ADC sample to return
         
     }
     windDirRaw = ADCH;
-
+    char printVane[20];
     // snprintf(printVane, 20, "ADC=%8X, wDR = %03D", ADCH, windDirRaw);
     // lcd_write_string(printVane);
     // _delay_ms(1000);
     // lcd_clear_screen();
     // Sample retrieved
+
+    snprintf(printVane, 20, "Dir = %03D", windDirDeg);
+    lcd_write_string(printVane);
 
     /*CALIBRATION VALUES
     (V/5) * 255 = ADC
@@ -103,36 +107,48 @@ double windVane(){
     W  = 4.621 = 235.7
     NW = 4.341 = 221.4 */
 
-    // if((windDirRaw <= 200) && (windDirRaw >= 190)){
-    //     lcd_write_string("Wind Dir = N");
-    // }
-    // else if((windDirRaw <= 120) && (windDirRaw >= 110)){
-    //     lcd_write_string("Wind Dir = NE");
-    // }
-    // else if((windDirRaw <= 30) && (windDirRaw >= 20)){
-    //     lcd_write_string("Wind Dir = E");
-    // }
-    // else if((windDirRaw <= 50) && (windDirRaw >= 40)){
-    //     lcd_write_string("Wind Dir = SE");
-    // }
-    // else if((windDirRaw <= 80) && (windDirRaw >= 70)){
-    //     lcd_write_string("Wind Dir = S");
-    // }
-    // else if((windDirRaw <= 160) && (windDirRaw >= 150)){
-    //     lcd_write_string("Wind Dir = SW");
-    // }
-    // else if((windDirRaw <= 240) && (windDirRaw >= 230)){
-    //     lcd_write_string("Wind Dir = W");
-    // }
-    // else if((windDirRaw <= 225) && (windDirRaw >= 215)){
-    //     lcd_write_string("Wind Dir = NW");
-    // }
-    // else{
-    //     lcd_write_string("Wind Dir = XX");
-    // }
+    if(&windDirDeg == tracker){
+        lcd_write_string("(T)");
+    }
+    else{
+        lcd_write_string("(F)");
+    }
+
+    if((windDirRaw <= 200) && (windDirRaw >= 190)){
+        lcd_write_string("Wind Dir = N");
+        windDirDeg = 0;
+    }
+    else if((windDirRaw <= 120) && (windDirRaw >= 110)){
+        //lcd_write_string("Wind Dir = NE");
+        windDirDeg = 45;
+    }
+    else if((windDirRaw <= 30) && (windDirRaw >= 20)){
+        //lcd_write_string("Wind Dir = E");
+        windDirDeg = 90;
+    }
+    else if((windDirRaw <= 50) && (windDirRaw >= 40)){
+        //lcd_write_string("Wind Dir = SE");
+        windDirDeg = 135;
+    }
+    else if((windDirRaw <= 80) && (windDirRaw >= 70)){
+        //lcd_write_string("Wind Dir = S");
+        windDirDeg = 180;
+    }
+    else if((windDirRaw <= 160) && (windDirRaw >= 150)){
+        //lcd_write_string("Wind Dir = SW");
+        windDirDeg = 225;
+    }
+    else if((windDirRaw <= 240) && (windDirRaw >= 230)){
+        //lcd_write_string("Wind Dir = W");
+        windDirDeg = 270;
+    }
+    else if((windDirRaw <= 225) && (windDirRaw >= 215)){
+        //lcd_write_string("Wind Dir = NW");
+        windDirDeg = 315;
+    }
     
     // _delay_ms(1000);
-    return windDirRaw;
+    return windDirDeg;
 }
 
 double windSpeed(){
