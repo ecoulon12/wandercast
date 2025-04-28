@@ -48,6 +48,9 @@ volatile int speed = 0;
 volatile int rainfall_sleep_um = 0;
 int test = 0;
 volatile char ptrend;
+int real = 0;
+volatile uint8_t forced_sample_requested = 0;
+
 
 
 // Forward declarations
@@ -61,7 +64,13 @@ void send_alert(int alert_num);
 char getPressureTrend();
 void print_status(int pres, int temp, int rainfall, int wspeed, int rain, const char* pred);
 void io_pin_init();
-
+void set_output_mode_pd7();
+void pin_interrupt_init();
+void pin_interrupt_init();
+void set_input_mode_pb0();
+void send_forecast_serial(const char* pred);
+int pred_to_pulses(const char* pred);
+void disable_pb0();
 
 int main(void){
     // init all sensors
@@ -74,6 +83,7 @@ int main(void){
     weatherSensors_init();
     lcd_clear_screen();
     radio_init();
+    pin_interrupt_init();
 
     start_timer_sleep_mode();
 
@@ -119,14 +129,17 @@ int main(void){
             changed = 1;
             start_timer_sleep_mode();
 
-
-            
+            lcd_clear_screen();
+            lcd_write_string("sending forecast ...");
+            _delay_ms(500);
             //radio_send(zambretti()); // return the zambretti prediction as a char array
+            send_forecast_serial(zambretti_forecast(pdata.currPres,ptrend, dir, speed));
+            lcd_clear_screen();
         }
         // UPDATE THE SCREEN HERE if needed
         if (changed){
             // update LCD here
-            print_status(ptrend, pdata.currPres, rainfall_sleep_um , speed ,dir , zambretti_forecast(pdata.currPres,ptrend, dir, speed));
+            //print_status(ptrend, pdata.currPres, rainfall_sleep_um , speed ,dir , zambretti_forecast(pdata.currPres,ptrend, dir, speed));
             //changed = 0;
         }
 
@@ -296,4 +309,110 @@ void io_pin_init(){
     // Ensure PD2 (INT0/DIO0) remains input with pull-up
     DDRD &= ~(1 << PD2);
     PORTD |=  (1 << PD2);
+
+    DDRB &= ~(1 << PB0);   // PB0 as input
+    // PORTB |= (1 << PB0);   // Enable pull-up resistor on PB0
+
 }
+
+void pin_interrupt_init() {
+    // Set PB0 as input and pull-up
+    DDRB &= ~(1 << PB0);
+    // PORTB |= (1 << PB0);
+
+    // Enable Pin Change Interrupt for PB[7:0] (PCIE0)
+    PCICR |= (1 << PCIE0);      // Enable PCINT7..0 group (Port B)
+    PCMSK0 |= (1 << PCINT0);    // Enable PB0 (PCINT0)
+}
+
+void send_forecast_serial(const char* pred) {
+    int pulses = pred_to_pulses(pred);
+    set_output_mode_pd7();  // PB0 instead of PD4
+    disable_pb0();
+
+    uint8_t i;
+    for (i = 0; i < pulses; i++) {
+        PORTD |= (1 << PD7);    // Set PB0 high
+        _delay_ms(20);          // Pulse HIGH duration
+        PORTD &= ~(1 << PD7);   // Set PB0 low
+        _delay_ms(500);         // Time between pulses
+    }
+
+    set_input_mode_pb0();  // Back to input mode
+}
+
+
+void set_output_mode_pd7() {
+    // Disable Pin Change Interrupt for PB0
+    // PCICR &= ~(1 << PCIE0);    // Disable Pin Change Interrupt for Port B group
+    // PCMSK0 &= ~(1 << PCINT0);  // Mask off PB0
+
+    // Set PB0 as output
+    DDRD |= (1 << PD7);
+
+    // Drive low initially
+    PORTD &= ~(1 << PD7);
+}
+
+void disable_pb0() {
+    // Disable Pin Change Interrupt for PB0
+    PCICR &= ~(1 << PCIE0);    // Disable Pin Change Interrupt for Port B group
+    PCMSK0 &= ~(1 << PCINT0);  // Mask off PB0
+
+    // Set PB0 as output
+    DDRD |= (1 << PB0);
+
+    // Drive low initially
+    PORTD &= ~(1 << PB0);
+}
+
+
+void set_input_mode_pb0() {
+    // Set PB0 back to input
+    DDRB &= ~(1 << PB0);
+
+    // Enable pull-up resistor
+    //PORTB |= (1 << PB0);
+
+    // Re-enable Pin Change Interrupt for PB0
+    PCICR |= (1 << PCIE0);      // Enable PCINT0 group (PB[7:0])
+    PCMSK0 |= (1 << PCINT0);    // Enable interrupt on PB0
+}
+
+int pred_to_pulses(const char* pred){
+    if (strcmp(pred, "Fine Weather") == 0) {
+        return 1;
+    } else if (strcmp(pred, "Fair Weather") == 0) {
+        return 2;
+    } else if (strcmp(pred, "Unsettled, Improving") == 0) {
+        return 3;
+    } else if (strcmp(pred, "Fair Weather (falling)") == 0) {
+        return 4;
+    } else if (strcmp(pred, "Unsettled (falling)") == 0) {
+        return 5;
+    } else if (strcmp(pred, "Fair, then Showers") == 0) {
+        return 6;
+    } else if (strcmp(pred, "Showers") == 0) {
+        return 7;
+    } else if (strcmp(pred, "Rain") == 0) {
+        return 8;
+    } else {
+        return 9;  // Unknown forecast → 9 pulses to indicate "error" or "unknown"
+    }
+}
+
+ISR(PCINT0_vect) {
+    // Check if PB0 went low
+    lcd_clear_screen();
+    lcd_write_string("PCINT!");
+    _delay_ms(1000);
+    // if (!(PINB & (1 << PB0))) {
+    //     //forced_sample_requested = 1;
+    //     seconds_elapsed = 0;
+    //     current_state = sampling_period;
+    // }
+
+    seconds_elapsed = 0;
+    current_state = sampling_period;
+}
+
