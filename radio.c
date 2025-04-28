@@ -178,7 +178,8 @@ static uint8_t rfm69_receive(uint8_t *buf, uint8_t maxlen) {
       spi_transfer(0x00);           // FIFO read
       len = spi_transfer(0x00);     // first byte = length
       if (len > maxlen) len = maxlen;
-      for (uint8_t i = 0; i < len; i++) {
+      uint8_t i;
+      for (i = 0; i < len; i++) {
         buf[i] = spi_transfer(0x00);
       }
     deselect_chip();
@@ -198,7 +199,8 @@ static void rfm69_send(const uint8_t *buf, uint8_t len) {
     select_chip();
       spi_transfer(0x80);       // FIFO write
       spi_transfer(len);        // first byte = length
-      for (uint8_t i = 0; i < len; i++) {
+      uint8_t i;
+      for (i = 0; i < len; i++) {
         spi_transfer(buf[i]);   // then the payload
       }
     deselect_chip();
