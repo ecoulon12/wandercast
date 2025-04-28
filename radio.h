@@ -17,6 +17,8 @@ void radio_init(void);
 // Debug: read register and print on LCD
 void radio_debug_print_register(uint8_t addr);
 
+
+
 #ifdef NODE_TX
 
 // Transmit a null-terminated string over the radio.
@@ -34,4 +36,7 @@ void radio_send(const char *msg);
 void radio_rx_poll(void);
 #endif
 
+void dio0_scope_pulse_loop(uint8_t ms_delay);
+
 #endif // RADIO_H
+

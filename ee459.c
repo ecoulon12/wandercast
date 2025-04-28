@@ -25,6 +25,7 @@
 #include "weatherSensors.h"
 #include "radio.h"     
 #include <stddef.h>
+#include <avr/interrupt.h>
 
 void io_pin_init();
 void lcd_init();
@@ -38,9 +39,12 @@ int main(void)
     io_pin_init();
     radio_init();
     lcd_init();
+    sei();
+    // write_reg(REG_DIO_MAPPING1, 2 << 6);  // writes 0b1000_0000 = 0x80
+
 
     // write_reg(REG_OPMODE, MODE_CONTINUOUS_WAVE);  // 0x98
-
+    dio0_scope_pulse_loop(100);
 
     // Debug prints for radio registers
     lcd_clear_screen();
