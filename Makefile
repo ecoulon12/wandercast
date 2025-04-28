@@ -1,7 +1,11 @@
 DEVICE     = atmega328p
 CLOCK      = 7372800 #9830400
 PROGRAMMER = -c usbtiny -P usb
+<<<<<<< HEAD
+OBJECTS    = ee459.o i2c.o lcd.o bme280.o weatherSensors.o
+=======
 OBJECTS    = ee459.o i2c.o lcd.o bme280.o weatherSensors.o radio.o
+>>>>>>> e827bd51d0cafa8b346ddc825187b02a364f579d
 FUSES      = -U hfuse:w:0xd9:m -U lfuse:w:0xe0:m
 
 # Fuse Low Byte = 0xe0   Fuse High Byte = 0xd9   Fuse Extended Byte = 0xff

@@ -10,10 +10,11 @@
 
 //global vars
 volatile int windSpdRaw = 0;
-volatile double windSpd = 0;
+static int windSpd = 0;
 volatile double windDirRaw = 0;
 static int windDirDeg = 0 ;
 
+static bool windFlag = 0;
 
 
 ISR(TIMER1_COMPA_vect)
@@ -36,16 +37,17 @@ ISR(TIMER1_COMPA_vect)
 ISR(PCINT1_vect)
 {
     
-    // lcd_write_string("interrupt");
-    // _delay_ms(500);
-    // lcd_clear_screen();
-    
-    if(PINC & (1 << PC2))  //code for anenometer, linked to PC2
-    {
-        windSpdRaw += 1;
+    if((PINC & (1 << PC2) && ~windFlag)){  //code for anenometer, linked to PC2
+        windSpdRaw++;
+        windFlag = 1;
+    }
+    else if ((PINC & (1 << PC2) && ~windFlag)){
+        windSpdRaw = windSpdRaw - 3;
+        windFlag = 0;
     }
 
     // char printIntrpt[20];
+    // lcd_clear_screen();
     // snprintf(printIntrpt, 20, "Spd = %2d", windSpdRaw / 2);
     // lcd_write_string(printIntrpt);
     // _delay_ms(100);
@@ -144,7 +146,7 @@ int windVane(){
     return windDirDeg;
 }
 
-double windSpeed(){
+int windSpeed(){
     windSpd = windSpdRaw;
     return windSpd;
 }

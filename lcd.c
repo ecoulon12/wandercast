@@ -83,4 +83,31 @@ void lcd_print_uint(const char *label, uint8_t num) {
     lcd_write_string(print_data);
 }
 
+void lcd_move_cursor(uint8_t col, uint8_t row){
+    uint8_t address = 0x00;
+
+    // Calculate the address based on row and column
+    switch(row){
+        case 0:
+            address = col;
+            break;
+        case 1:
+            address = 0x40 + col;
+            break;
+        case 2:
+            address = 0x80 + col;
+            break;
+        case 3:
+            address = 0xC0 + col;
+        default:
+            address = col;
+            break;
+    }
+
+    // Send the command to set the DDRAM address
+    i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, (0x80 | address)}, 2, NULL, 0);
+    _delay_us(120);
+}
+
+
 

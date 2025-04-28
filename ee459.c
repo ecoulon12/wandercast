@@ -77,13 +77,13 @@ int main(void)
     
     //variables
     int windDir;
-    double windSpd;
+    int windSpd;
 
     while(1) {
         //status = bme280_get_status();
         //bme280_trigger_forced_measurement(); One of these statements is causing the loop to freeze
-        windDir = windVane();
-        // windSpd = windSpeed();
+        // windDir = windVane();
+        windSpd = windSpeed();
 
         // snprintf(print_data, 20, "Deg = %3d", windDir);
         snprintf(print_data, 20, "Deg = %3d", windDir);
