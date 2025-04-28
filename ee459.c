@@ -34,7 +34,11 @@ int main(void)
     // Your program goes here
     //init stuff here
     io_pin_init();
-    radio_init();
+    // radio_init();
+    lcd_init();
+
+    // write_reg(REG_OPMODE, MODE_CONTINUOUS_WAVE);  // 0x98
+
 
     // Debug prints for radio registers
     lcd_clear_screen();
@@ -48,7 +52,7 @@ int main(void)
     TWSR = 0; // Set prescalar for 1
     TWBR = BDIV ; // Set bit rate register
 
-    lcd_init();
+    //lcd_init();
 
     lcd_clear_screen();
     lcd_write_string("Start of the program!");
@@ -81,6 +85,7 @@ int main(void)
         windDir = windVane();
         // windSpd = windSpeed();
 
+        // snprintf(print_data, 20, "Deg = %3d", windDir);
         snprintf(print_data, 20, "Deg = %3d", windDir);
         lcd_write_string(print_data);
         //bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
@@ -109,6 +114,8 @@ int main(void)
         lcd_clear_screen();
         
         #ifdef NODE_TX
+            lcd_clear_screen();
+            lcd_write_string("entered radio TX!");
             radio_send("HELLO");
             lcd_clear_screen();
             lcd_write_string("radio TX!");
@@ -117,7 +124,9 @@ int main(void)
             radio_rx_poll();  // Poll and display
         #endif
 
-
+        radio_debug_print_register(0x2F); // Should print 0x2D
+        radio_debug_print_register(0x30); // Should print 0xD4
+        radio_debug_print_register(0x01); // Should print 0x04
         
     }
     
@@ -128,7 +137,7 @@ void io_pin_init(){
     // init everything as outputs ( PB0-PB5, PB7, PC0-PC5, PD0-PD7 )
     DDRD = 0xFF;  // 0xFF = 1111 1111 (all bits set to 1)
     DDRC = (1 << PC5 | 1 << PC4 | 1 << PC0); // 0011 0001 PC3,2,1 to input
-    DDRB = 0xBF; // 1011 1111
+    // DDRB = 0xBF; // 1011 1111
     // don't work : PB3, PC0, PD
 
     PORTD &= ~(0xFF);
@@ -138,5 +147,14 @@ void io_pin_init(){
     // Ensure PD2 (INT0/DIO0) remains input with pull-up
     DDRD &= ~(1 << PD2);
     PORTD |=  (1 << PD2);
+
+    // after your other PORTC setup:
+    DDRC   &= ~(1<<PC0);   // make EN a high-impedance input
+    PORTC  |=  (1<<PC0);   // pull it up to VIN so the regulator stays on
+
+    DDRB |= (1<<PB3) | (1<<PB5) | (1<<PB2);  // PB3=MOSI, PB5=SCK, PB2=CS
+    DDRB &= ~(1<<PB4);                       // PB4=MISO must be input
+
+
 }
 

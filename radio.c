@@ -65,6 +65,10 @@ static uint8_t spi_transfer(uint8_t out) {
     SPDR = out;
     // Wait for transfer complete flag
     while (!(SPSR & (1<<SPIF)));
+    // lcd_clear_screen();
+    // lcd_write_string("flag went true for spi transfer");
+    // _delay_ms(1000);
+    // lcd_clear_screen();
     return SPDR;
 }
 
@@ -178,7 +182,8 @@ static uint8_t rfm69_receive(uint8_t *buf, uint8_t maxlen) {
       spi_transfer(0x00);           // FIFO read
       len = spi_transfer(0x00);     // first byte = length
       if (len > maxlen) len = maxlen;
-      for (uint8_t i = 0; i < len; i++) {
+      uint8_t i;
+      for (i = 0; i < len; i++) {
         buf[i] = spi_transfer(0x00);
       }
     deselect_chip();
@@ -198,7 +203,8 @@ static void rfm69_send(const uint8_t *buf, uint8_t len) {
     select_chip();
       spi_transfer(0x80);       // FIFO write
       spi_transfer(len);        // first byte = length
-      for (uint8_t i = 0; i < len; i++) {
+      uint8_t i;
+      for (i = 0; i < len; i++) {
         spi_transfer(buf[i]);   // then the payload
       }
     deselect_chip();
@@ -206,7 +212,25 @@ static void rfm69_send(const uint8_t *buf, uint8_t len) {
     // Kick off TX
     write_reg(REG_OPMODE, MODE_TRANSMIT);
     // Wait for PacketSent (IRQFLAGS2 bit3)
-    while ((read_reg(REG_IRQFLAGS2) & (1<<3)) == 0) { }
+    // lcd_clear_screen();
+    // lcd_write_string("about to read register");
+    // _delay_ms(1000);
+    while ((read_reg(REG_IRQFLAGS2) & (1<<3)) == 0) 
+    { 
+        lcd_clear_screen();
+        lcd_write_string("reading register");
+        _delay_ms(1000);
+        char buf[20];
+        uint8_t val = read_reg(REG_IRQFLAGS2);
+        lcd_clear_screen();
+        snprintf(buf, 20, "Reg 0x%02X: 0x%02X", REG_IRQFLAGS2, val);
+        lcd_write_string(buf);
+        _delay_ms(2000); 
+
+    }
+    lcd_clear_screen();
+    lcd_write_string("finished reading register");
+    _delay_ms(1000);
     // Back to standby
     write_reg(REG_OPMODE, MODE_STANDBY);
 }
@@ -216,7 +240,7 @@ void radio_debug_print_register(uint8_t addr) {
     uint8_t val = read_reg(addr);
 
     lcd_clear_screen();
-    snprintf(buf, sizeof(buf), "Reg 0x%02X: 0x%02X", addr, val);
+    snprintf(buf, 20, "Reg 0x%02X: 0x%02X", addr, val);
     lcd_write_string(buf);
     _delay_ms(2000); 
     lcd_clear_screen();
