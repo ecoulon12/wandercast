@@ -59,12 +59,17 @@ int main(void)
     // bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
     // while(1){}
     
+    //variables
+    double windDir;
+    double windSpd;
 
     while(1) {
         //status = bme280_get_status();
         //bme280_trigger_forced_measurement(); One of these statements is causing the loop to freeze
-        windVane();
-
+        //windDir = windVane();
+        // windSpd = windSpeed();
+        // snprintf(print_data, 20, "windspd = %02d", windSpd);
+        // lcd_write_string(print_data);
         //bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
 
 
@@ -80,13 +85,13 @@ int main(void)
             lcd_write_string("HELOOOOOO");
             _delay_ms(2000);
         }
-        lcd_clear_screen();
+        //lcd_clear_screen();
         
         //bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
         // lcd_print_uint("hi", num);
 
         
-        lcd_write_string("End of loop");
+        //lcd_write_string("End of loop");
         _delay_ms(1000);
         lcd_clear_screen();
         
@@ -102,7 +107,7 @@ int main(void)
 void io_pin_init(){
     // init everything as outputs ( PB0-PB5, PB7, PC0-PC5, PD0-PD7 )
     DDRD = 0xFF;  // 0xFF = 1111 1111 (all bits set to 1)
-    DDRC = (1 << PC5 | 1 << PC4 | 1 << PC0  ); // 0011 0001
+    DDRC = (1 << PC5 | 1 << PC4 | 1 << PC0); // 0011 0001 PC3,2,1 to input
     DDRB = 0xBF; // 1011 1111
     // don't work : PB3, PC0, PD
 
