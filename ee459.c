@@ -13,7 +13,7 @@
 # define FOSC1 7372800 
 # define BDIV ( FOSC1 / 200000 - 16) / 2 + 1
 
-
+#define F_CPU 7372800UL
 
 #include <avr/io.h>
 #include <util/delay.h>
@@ -23,6 +23,8 @@
 #include "lcd.h"
 #include "bme280.h"
 #include "weatherSensors.h"
+#include "radio.h"     
+#include <stddef.h>
 
 void io_pin_init();
 void lcd_init();
@@ -32,6 +34,16 @@ int main(void)
     // Your program goes here
     //init stuff here
     io_pin_init();
+    radio_init();
+
+    // Debug prints for radio registers
+    lcd_clear_screen();
+    lcd_write_string("Past radio init!");
+    _delay_ms(1000);
+    radio_debug_print_register(0x2F); // Should print 0x2D
+    radio_debug_print_register(0x30); // Should print 0xD4
+    radio_debug_print_register(0x01); // Should print 0x04
+
 
     TWSR = 0; // Set prescalar for 1
     TWBR = BDIV ; // Set bit rate register
@@ -96,7 +108,14 @@ int main(void)
         _delay_ms(1000);
         lcd_clear_screen();
         
-        
+        #ifdef NODE_TX
+            radio_send("HELLO");
+            lcd_clear_screen();
+            lcd_write_string("radio TX!");
+            _delay_ms(1000);
+        #elif defined(NODE_RX)
+            radio_rx_poll();  // Poll and display
+        #endif
 
 
         
@@ -115,5 +134,9 @@ void io_pin_init(){
     PORTD &= ~(0xFF);
     PORTC &= ~(0x3F);
     PORTB &= ~(0xBF);
+
+    // Ensure PD2 (INT0/DIO0) remains input with pull-up
+    DDRD &= ~(1 << PD2);
+    PORTD |=  (1 << PD2);
 }
 
