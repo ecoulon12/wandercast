@@ -119,14 +119,14 @@ void bme280_read_environment(int32_t *temperature_x100, uint32_t *pressure_pa, u
     uint32_t adc_T = (((uint32_t)buf[3]) << 12) | (((uint32_t)buf[4]) << 4) | (buf[5] >> 4);
     uint32_t adc_H = (((uint32_t)buf[6]) << 8) | buf[7];
 
-    // --- Temperature compensation (integer) ---
+    // Temperature compensation (integer) 
     int32_t var1 = ((((adc_T >> 3) - ((int32_t)calib_data.dig_T1 << 1))) * ((int32_t)calib_data.dig_T2)) >> 11;
     int32_t var2 = (((((adc_T >> 4) - ((int32_t)calib_data.dig_T1)) * ((adc_T >> 4) - ((int32_t)calib_data.dig_T1))) >> 12) *
                     ((int32_t)calib_data.dig_T3)) >> 14;
     t_fine = var1 + var2;
     *temperature_x100 = (t_fine * 5 + 64) >> 7;  // °C × 100
 
-    // --- Pressure compensation (integer) ---
+    // Pressure compensation
     int64_t var1p, var2p, p;
     var1p = ((int64_t)t_fine) - 128000;
     var2p = var1p * var1 * (int64_t)calib_data.dig_P6;

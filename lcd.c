@@ -95,10 +95,10 @@ void lcd_move_cursor(uint8_t col, uint8_t row){
             address = 0x40 + col;
             break;
         case 2:
-            address = 0x80 + col;
+            address = 0x14 + col;
             break;
         case 3:
-            address = 0xC0 + col;
+            address = 0x54 + col;
         default:
             address = col;
             break;

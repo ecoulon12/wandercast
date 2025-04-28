@@ -8,5 +8,6 @@
 void weatherSensors_init();
 int windVane();
 int windSpeed();
+int rain_um();
 
 #endif
