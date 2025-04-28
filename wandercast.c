@@ -23,6 +23,12 @@
 #include "weatherSensors.h"
 #include "zambretti.h"
 
+
+struct PressureData {
+    int t[5];
+    int i;
+};
+
 #define SLEEP_PERIOD_S 600 // 10 min * 60 seconds = 600s
 
 // Enum definitions
@@ -32,7 +38,8 @@ enum weather_prediction {rain, norain}; // etc.
 // Global variables
 volatile enum state current_state = sleep_period;
 volatile uint32_t seconds_elapsed = 0;
-volatile changed = 1;
+volatile int changed = 1;
+volatile struct PressureData pdata;
 
 
 // Forward declarations
@@ -44,6 +51,8 @@ void start_timer_sleep_mode();
 void start_timer_sample_mode();
 void send_alert(int alert_num);
 void print_status(int pres, int temp, int hum, int wspeed, int rain, int wdir);
+char getPressureTrend(struct PressureData pd);
+
 
 int main(void){
     // init all sensors
@@ -54,6 +63,7 @@ int main(void){
     lcd_init();
     weatherSensors_init();
     lcd_clear_screen();
+    radio_init();
 
     start_timer_sleep_mode();
 
@@ -66,6 +76,7 @@ int main(void){
             }
         }
         else if (current_state == sampling_period){
+            lcd_clear_screen();
             lcd_write_string("sampling ...");
             _delay_ms(2000);
             get_pressure_temp_hum();
@@ -78,6 +89,8 @@ int main(void){
 
             current_state = sleep_period;
             start_timer_sleep_mode();
+            
+            //radio_send(zambretti()); // return the zambretti prediction as a char array
         }
         // UPDATE THE SCREEN HERE if needed
         if (changed){
@@ -85,6 +98,8 @@ int main(void){
             print_status(1,2,3,4,5,6);
             changed = 0;
         }
+
+        //get_pressure_temp_hum();
 
     }
 }
@@ -106,6 +121,16 @@ void get_pressure_temp_hum(){
     // bme280_read_environment(&temp, &press, &hum);
     //return temp pres hum ;
     // STORE TEMP, PRESS, HUM SOMEWHERE
+    int fakePressure[5] = { 1,2,3,4,5};
+
+    int i = 0;
+    for (i = 0; i<5; i++){
+        pdata.t[i] = fakePressure[i];
+        char bufs[32];
+        snprintf(bufs, sizeof(bufs), "PRES:%d %2d %2d", i, pdata.t[i], fakePressure[i]);
+        lcd_write_string(bufs);
+        _delay_ms(3000);
+    }
 }
 
 void get_wind_speed(){
@@ -115,12 +140,12 @@ void get_wind_speed(){
 
 void get_rain_depth(){
     // fetch global rain depth value
-    // return rain_depth();
+    return rain_depth();
 }
 
 void get_wind_direction(){
     // get wind vane data
-    //return windVane();
+    return windVane();
 }
 
 void start_timer_sleep_mode(){
@@ -187,4 +212,19 @@ void print_status(int pres, int temp, int hum, int wspeed, int wdir, int predict
     char buffy3[32];
     snprintf(buffy3, sizeof(buffy3), "Forecast: %2d", prediction);
     //lcd_write_string(buffy3);
+}
+
+char getPressureTrend(struct PressureData pd){
+    // get average
+    // get trend
+    int diff = pd.t[4] - pd.t[0];
+
+    if (diff > 5) {         // threshold to avoid noise
+        return 'r';           // rising
+    } else if (diff < -5) {
+        return 'f';          // falling
+    } else {
+        return 's';           // stable
+    }
+
 }
