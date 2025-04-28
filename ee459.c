@@ -69,8 +69,8 @@ int main(void)
         windDir = windVane();
         // windSpd = windSpeed();
 
-        // snprintf(print_data, 20, "Deg = %3d", windDir);
-        // lcd_write_string(print_data);
+        snprintf(print_data, 20, "Deg = %3d", windDir);
+        lcd_write_string(print_data);
         //bme280_print_reg(BME280_CTRL_MEAS_REG_ADDR);
 
 
