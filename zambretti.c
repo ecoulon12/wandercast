@@ -4,8 +4,8 @@
 #include "zambretti.h"
 #define MAX_MEASUREMENTS 6
 
-PressureTrend determine_pressure_trend(uint8_t pressure_log) {
-    uint8_t pressure_index = 0;   
+PressureTrend determine_pressure_trend(const int pressure_log[], uint8_t pressure_index) {
+    pressure_index = 0;   
     int current = pressure_log[(pressure_index - 1 + MAX_MEASUREMENTS) % MAX_MEASUREMENTS];
     int previous = pressure_log[(pressure_index - 2 + MAX_MEASUREMENTS) % MAX_MEASUREMENTS];
 

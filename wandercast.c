@@ -66,7 +66,7 @@ void print_status(int pres, int temp, int rainfall, int wspeed, int rain, const 
 void io_pin_init();
 void set_output_mode_pd7();
 void pin_interrupt_init();
-void pin_interrupt_init();
+// void pin_interrupt_init();
 void set_input_mode_pb0();
 void send_forecast_serial(const char* pred);
 int pred_to_pulses(const char* pred);
@@ -311,14 +311,15 @@ void io_pin_init(){
     PORTD |=  (1 << PD2);
 
     DDRB &= ~(1 << PB0);   // PB0 as input
-    // PORTB |= (1 << PB0);   // Enable pull-up resistor on PB0
+    PORTB |= (1 << PB0);   // Enable pull-up resistor on PB0
 
 }
 
 void pin_interrupt_init() {
     // Set PB0 as input and pull-up
-    DDRB &= ~(1 << PB0);
+    // DDRB &= ~(1 << PB0);
     // PORTB |= (1 << PB0);
+    // should this be pulled up? it is set as an input
 
     // Enable Pin Change Interrupt for PB[7:0] (PCIE0)
     PCICR |= (1 << PCIE0);      // Enable PCINT7..0 group (Port B)
@@ -359,11 +360,13 @@ void disable_pb0() {
     PCICR &= ~(1 << PCIE0);    // Disable Pin Change Interrupt for Port B group
     PCMSK0 &= ~(1 << PCINT0);  // Mask off PB0
 
-    // Set PB0 as output
-    DDRD |= (1 << PB0);
+    // // Set PB0 as output
+    // DDRD |= (1 << PB0);
 
-    // Drive low initially
-    PORTD &= ~(1 << PB0);
+    // // Drive low initially
+    // PORTD &= ~(1 << PB0);
+    DDRB   |=  (1<<PB0);       // make PB0 an output
+    PORTB  &= ~(1<<PB0);       // drive it low
 }
 
 

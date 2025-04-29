@@ -32,7 +32,7 @@ volatile uint16_t pulse_count = 0;
 void io_pin_init();
 void lcd_init();
 void external_interrupt_init();
-void send_forced_signal();
+// void send_forced_signal();
 void send_forced_signal();
 
 const char* forecast_lookup[] = {
@@ -64,20 +64,20 @@ int main(void)
     // Init hardware
     io_pin_init();
     external_interrupt_init();  // initialize interrupt to count 
-    radio_init();
+    // radio_init();
     lcd_init();
 
     // Debug prints for radio
     lcd_clear_screen();
-    lcd_write_string("Past radio init!");
-    _delay_ms(1000);
-    radio_debug_print_register(0x2F); // Should print 0x2D
-    radio_debug_print_register(0x30); // Should print 0xD4
-    radio_debug_print_register(0x01); // Should print 0x04
+    // lcd_write_string("Past radio init!");
+    // _delay_ms(1000);
+    // radio_debug_print_register(0x2F); // Should print 0x2D
+    // radio_debug_print_register(0x30); // Should print 0xD4
+    // radio_debug_print_register(0x01); // Should print 0x04
 
     lcd_clear_screen();
     lcd_write_string("Start of the program! -- HANDHELD");
-    _delay_ms(1000);
+    _delay_ms(2000);
     lcd_clear_screen();
 
     bme280_init();
@@ -92,7 +92,7 @@ int main(void)
     while(1) {
 
         // Force sampling if button pressed
-        if (!(PIND & (1<<PD3))){
+        if (!(PINB & (1<<PB1))){
             lcd_clear_screen();
             lcd_move_cursor(0,0);
             send_forced_signal();
@@ -148,38 +148,54 @@ int main(void)
 // === IO Initialization ===
 void io_pin_init() {
     // Set up pins
-    PORTD &= ~(0xFF);
-    DDRD = 0xEF;  // PD3 button input, PD4 pulse output, rest output
-    DDRD &= ~(1<<PD3);
-    PORTD |= (1 << PD3); // pull-up resistor for forced button
+   // Clear DDRD for PD3 & PD2 (inputs), enable pull-ups
+   DDRD &= ~((1<<PD3)|(1<<PD2));
+   PORTD |=  (1<<PD3)|(1<<PD2);
 
-    DDRC = (1 << PC5 | 1 << PC4 | 1 << PC0); // 0011 0001 PC3,2,1 to input
-    PORTC &= ~(0x3F);
-    PORTB &= ~(0xBF);
+    DDRB  &= ~(1<<PB1);
+    PORTB |=  (1<<PB1);
 
-    // Ensure PD2 (INT0/DIO0) remains input with pull-up
-    DDRD &= ~(1 << PD2);
-    PORTD |= (1 << PD2);
+   // Set PD4 as output, drive it low initially
+   DDRD |=  (1<<PD4);
+   PORTD &= ~(1<<PD4);
 
-    DDRC &= ~(1 << PC0);   // make EN a high-impedance input
-    PORTC |= (1 << PC0);   // pull it up to VIN so the regulator stays on
+   // PC4 (SDA) & PC5 (SCL)
+   DDRC &= ~((1<<PC4)|(1<<PC5));
+   PORTC |=  (1<<PC4)|(1<<PC5);
 
-    DDRB |= (1 << PB3) | (1 << PB5) | (1 << PB2);  // PB3=MOSI, PB5=SCK, PB2=CS
-    DDRB &= ~(1 << PB4);   // PB4=MISO must be input
+   // PC0 = regulator EN pin: input w/ pull-up so VIN keeps it on
+   DDRC &= ~(1<<PC0);
+   PORTC |=  (1<<PC0);
+
+   // PB3=MOSI, PB5=SCK, PB2=CS as outputs
+   DDRB |=  (1<<PB3) | (1<<PB5) | (1<<PB2);
+   // PB4=MISO must be input
+   DDRB &= ~(1<<PB4);
+
+   // Disable pull-ups on the outputs, enable on MISO
+   PORTB &= ~((1<<PB3) | (1<<PB5) | (1<<PB2));
+   PORTB |=  (1<<PB4);
 }
 
 // === New: External Interrupt Initialization ===
 void external_interrupt_init() {
-    EICRA |= (1 << ISC01);  // Trigger INT0 on falling edge
-    EIMSK |= (1 << INT0);   // Enable INT0 interrupt
+    // EICRA |= (1 << ISC01);  // Trigger INT0 on falling edge
+    // EIMSK |= (1 << INT0);   // Enable INT0 interrupt
+    EICRA  = (1<<ISC01);       
+    EICRA |= (1<<ISC11);         
+    EIMSK |= (1<<INT0) | (1<<INT1);
     sei();                  // Global interrupt enable
 }
 
 // === New: External Interrupt Service Routine ===
-ISR(INT0_vect)
-{
+// ISR(INT0_vect) // keep for radio / make sure there is no conflict
+// {
+//     // pulse_count++;
+// }
+
+ISR(INT1_vect) { // for forecast
     pulse_count++;
-}
+  }
 
 // === Send forced sampling signal on PD4 ===
 void send_forced_signal() {
