@@ -28,6 +28,8 @@
 // === New: Global variable to count pulses ===
 volatile uint16_t pulse_count = 0;
 
+
+
 // Function prototypes
 void io_pin_init();
 void lcd_init();
@@ -47,13 +49,13 @@ const char* forecast_lookup[] = {
     "Rain" // 8
 };
 
-// const char* get_forecast_from_pulse_count(uint16_t pulse_count) {
-//     if (pulse_count >= 1 && pulse_count <= 8) {
-//         return forecast_lookup[pulse_count];
-//     } else {
-//         return "Unknown Forecast";
-//     }
-// }
+const char* get_forecast_from_pulse_count(uint16_t pulse_count) {
+    if (pulse_count >= 1 && pulse_count <= 8) {
+        return forecast_lookup[pulse_count];
+    } else {
+        return "Unknown Forecast";
+    }
+}
 
 
 int main(void)
@@ -88,6 +90,9 @@ int main(void)
     int windDir;
     int windSpd;
     char buffer[16]; // For displaying pulse count
+    int no_pulse_timer_ms = 0;
+    uint16_t last_pulse_count = 0; //vic additon
+    int forecast_ready = 0;
 
     while(1) {
 
@@ -102,37 +107,38 @@ int main(void)
             lcd_clear_screen();
         }
     
-        // // If we got a new pulse since last check, reset the timer
-        // if (pulse_count != last_pulse_count) {
-        //     no_pulse_timer_ms = 0;
-        //     last_pulse_count = pulse_count;
-        // } else {
-        //     no_pulse_timer_ms += 500; // Every loop is about 500ms
-        // }
+        // If we got a new pulse since last check, reset the timer
+        if (pulse_count != last_pulse_count) {
+            no_pulse_timer_ms = 0;
+            last_pulse_count = pulse_count;
+        } else {
+            no_pulse_timer_ms += 500; // Every loop is about 500ms
+        }
     
-        // // If no pulse has arrived for 2 seconds, forecast is ready
-        // if (no_pulse_timer_ms >= 2000 && pulse_count > 0) {
-        //     forecast_ready = 1;
-        // }
+        // If no pulse has arrived for 2 seconds, forecast is ready
+        if (no_pulse_timer_ms >= 2000 && pulse_count > 0) {
+            forecast_ready = 1;
+        }
     
-        // // LCD display
-        // lcd_clear_screen();
+        // LCD display
+        lcd_clear_screen();
         // lcd_set_cursor(0, 0);
     
-        // if (forecast_ready) {
-        //     const char* forecast = get_forecast_from_pulse_count(pulse_count);
-        //     lcd_write_string(forecast);
+        if (forecast_ready) {
+            const char* forecast = get_forecast_from_pulse_count(pulse_count);
+            lcd_write_string(forecast);
+            _delay_ms(2000);
     
-        //     // Reset for next message
-        //     pulse_count = 0;
-        //     last_pulse_count = 0;
-        //     no_pulse_timer_ms = 0;
-        //     forecast_ready = 0;
-        // } else {
-        //     char buffer[16];
-        //     snprintf(buffer, sizeof(buffer), "Pulses: %u", pulse_count);
-        //     lcd_write_string(buffer);
-        // }
+            // Reset for next message
+            pulse_count = 0;
+            last_pulse_count = 0;
+            no_pulse_timer_ms = 0;
+            forecast_ready = 0;
+        } else {
+            char buffer[16];
+            snprintf(buffer, sizeof(buffer), "Pulses: %u", pulse_count);
+            lcd_write_string(buffer);
+        }
     
         // #ifdef RX_MODE
         //     radio_rx_poll();  // Poll and display
