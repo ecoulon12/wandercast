@@ -404,7 +404,7 @@ int pred_to_pulses(const char* pred){
 ISR(PCINT0_vect) {
     // Check if PB0 went low
     lcd_clear_screen();
-    lcd_write_string("PCINT!");
+    lcd_write_string("Forced Sample Mode");
     _delay_ms(1000);
     // if (!(PINB & (1 << PB0))) {
     //     //forced_sample_requested = 1;
