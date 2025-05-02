@@ -126,6 +126,7 @@ int main(void)
         if (forecast_ready) {
             const char* forecast = get_forecast_from_pulse_count(pulse_count);
             lcd_write_string(forecast);
+            _delay_ms(1000);
     
             // Reset for next message
             pulse_count = 0;
