@@ -100,7 +100,7 @@ int main(void)
             lcd_move_cursor(0,0);
             send_forced_signal();
             // lcd_move_
-            lcd_write_string("button press!!!");
+            lcd_write_string("Fetching data!");
             _delay_ms(1000);
         }else{
             lcd_clear_screen();
@@ -126,7 +126,7 @@ int main(void)
         if (forecast_ready) {
             const char* forecast = get_forecast_from_pulse_count(pulse_count);
             lcd_write_string(forecast);
-            _delay_ms(1000);
+            _delay_ms(5000);
     
             // Reset for next message
             pulse_count = 0;
