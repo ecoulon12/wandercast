@@ -34,7 +34,6 @@ void lcd_init();
 void external_interrupt_init();
 // void send_forced_signal();
 void send_forced_signal();
-void print_status(const char* forecast);
 
 const char* forecast_lookup[] = {
     "Unknown", // 0 pulses
@@ -80,9 +79,9 @@ int main(void)
     // radio_debug_print_register(0x01); // Should print 0x04
 
     lcd_clear_screen();
-    // lcd_write_string("Start of the program! -- HANDHELD");
-    // _delay_ms(2000);
-    // lcd_clear_screen();
+    lcd_write_string("Start of the program! -- HANDHELD");
+    _delay_ms(2000);
+    lcd_clear_screen();
 
     bme280_init();
     weatherSensors_init();
@@ -101,11 +100,10 @@ int main(void)
             lcd_move_cursor(0,0);
             send_forced_signal();
             // lcd_move_
-            // lcd_write_string("button press!!!");
-            lcd_write_string("Fetching Data...");
+            lcd_write_string("button press!!!");
             _delay_ms(1000);
         }else{
-            // lcd_clear_screen();
+            lcd_clear_screen();
         }
     
         // If we got a new pulse since last check, reset the timer
@@ -128,8 +126,7 @@ int main(void)
         if (forecast_ready) {
             const char* forecast = get_forecast_from_pulse_count(pulse_count);
             lcd_write_string(forecast);
-            print_status(forecast);
-            _delay_ms(2000);
+            _delay_ms(1000);
     
             // Reset for next message
             pulse_count = 0;
@@ -137,9 +134,9 @@ int main(void)
             no_pulse_timer_ms = 0;
             forecast_ready = 0;
         } else {
-            char buffer[16];
-            snprintf(buffer, sizeof(buffer), "Pulses: %u", pulse_count);
-            // lcd_write_string("Fetching Data...");
+            // char buffer[16];
+            // snprintf(buffer, sizeof(buffer), "Pulses: %u", pulse_count);
+            // lcd_write_string(buffer);
         }
     
         // #ifdef RX_MODE
@@ -211,62 +208,5 @@ void send_forced_signal() {
     _delay_ms(30);
     PORTD &= ~(1 << PD4);
     _delay_ms(500);
-}
-
-
-
-void print_status(const char* forecast) {
-    if (forecast == "Fine Weather" || forecast == "Fair Weather"){
-        lcd_move_cursor(0,1);
-        char buffy2[32];
-        snprintf(buffy2, sizeof(buffy2), "Enjoy your hike!");
-        lcd_write_string(buffy2);
-    }
-    else if (forecast == "Unsettled, Improving")
-    {
-        lcd_move_cursor(0,1);
-        char buffy3[32];
-        snprintf(buffy3, sizeof(buffy3), "Unpredictable rn,");
-        lcd_write_string(buffy3);
-        lcd_move_cursor(0,2);
-        lcd_write_string("will improve.");
-    }
-    else if (forecast == "Fair Weather (falling)")
-    {
-        lcd_move_cursor(0,2);
-        char buffy4[32];
-        snprintf(buffy4, sizeof(buffy4), "Closely monitor.");
-        lcd_write_string(buffy4);
-    }
-    else if (forecast == "Unsettled (falling)")
-    {
-        lcd_move_cursor(0,1);
-        char buffy4[32];
-        snprintf(buffy4, sizeof(buffy4), "Closely monitor.");
-        lcd_write_string(buffy4);
-    }
-    else if (forecast == "Fair, then Showers")
-    {
-        lcd_move_cursor(0,1);
-        char buffy4[32];
-        snprintf(buffy4, sizeof(buffy4), "Take necessary precautions.");
-        lcd_write_string(buffy4);
-    }
-    else if (forecast == "Showers")
-    {
-        lcd_move_cursor(0,1);
-        char buffy4[32];
-        snprintf(buffy4, sizeof(buffy4), "Gear up! #Gortex");
-        lcd_write_string(buffy4);
-    }
-    else if (forecast == "Rain")
-    {
-        lcd_move_cursor(0,1);
-        char buffy4[32];
-        snprintf(buffy4, sizeof(buffy4), "Take cover.");
-        lcd_write_string(buffy4);
-    }
-
-    _delay_ms(1000);
 }
 
