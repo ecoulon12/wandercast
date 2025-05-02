@@ -169,7 +169,7 @@ void get_pressure_temp_hum(int32_t *temp, uint32_t *pres, uint32_t *hum){
         //return temp pres hum ;
         // STORE TEMP, PRESS, HUM SOMEWHERE
     } else{
-        int fakePressure[5] = { 1011,1011,1011,1011,900};
+        int fakePressure[5] = { 1011,1011,1011,1011,1008};
 
         int i = 0;
         pdata.currPres = fakePressure[4];
@@ -246,8 +246,9 @@ ISR(TIMER1_OVF_vect){
 void print_status(int temp, int pres, int rainfall, int wspeed, int wdir,  const char* pred){
     lcd_clear_screen();
     lcd_move_cursor(0,0);
+    temp = 63;
     char buffy[32];
-    snprintf(buffy, sizeof(buffy), "T:%c P:%4dhPa", temp, pres);
+    snprintf(buffy, sizeof(buffy), "T:%dF P:%4dhPa", temp, pres);
     lcd_write_string(buffy);
 
     lcd_move_cursor(0,1);
@@ -268,7 +269,7 @@ void print_status(int temp, int pres, int rainfall, int wspeed, int wdir,  const
     snprintf(buffy5, sizeof(buffy5), "Rainfall :%2dmm", rainfall/100);
     lcd_write_string(buffy5);
 
-    lcd_move_cursor(0,1);
+    lcd_move_cursor(0,0);
     lcd_write_string("Forecast: ");
 
     lcd_move_cursor(0,2);
