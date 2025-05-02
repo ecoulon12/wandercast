@@ -23,7 +23,6 @@
 #include "weatherSensors.h"
 #include "zambretti.h"
 #include "radio.h"
-#include <stddef.h>
 
 
 struct PressureData {
@@ -67,7 +66,7 @@ void print_status(int pres, int temp, int rainfall, int wspeed, int rain, const 
 void io_pin_init();
 void set_output_mode_pd7();
 void pin_interrupt_init();
-// void pin_interrupt_init();
+void pin_interrupt_init();
 void set_input_mode_pb0();
 void send_forecast_serial(const char* pred);
 int pred_to_pulses(const char* pred);
@@ -83,7 +82,7 @@ int main(void){
     lcd_init();
     weatherSensors_init();
     lcd_clear_screen();
-    radio_init();
+    //radio_init();
     pin_interrupt_init();
 
     start_timer_sleep_mode();
@@ -92,7 +91,7 @@ int main(void){
         if (test){
 
             lcd_clear_screen();
-            lcd_write_string("sampling ...");
+            //lcd_write_string("sampling ...");
             _delay_ms(500);
             lcd_clear_screen();
             
@@ -140,7 +139,7 @@ int main(void){
         // UPDATE THE SCREEN HERE if needed
         if (changed){
             // update LCD here
-            //print_status(ptrend, pdata.currPres, rainfall_sleep_um , speed ,dir , zambretti_forecast(pdata.currPres,ptrend, dir, speed));
+            print_status(ptrend, pdata.currPres, rainfall_sleep_um , speed ,dir , zambretti_forecast(pdata.currPres,ptrend, dir, speed));
             //changed = 0;
         }
 
@@ -253,7 +252,7 @@ void print_status(int temp, int pres, int rainfall, int wspeed, int wdir,  const
 
     lcd_move_cursor(0,1);
     char buffy2[32];
-    snprintf(buffy2, sizeof(buffy2), "Wind Speed:%2dmph", wspeed);
+    snprintf(buffy2, sizeof(buffy2), "Wind Speed:%2dkph", wspeed);
     lcd_write_string(buffy2);
 
     lcd_move_cursor(0,2);
@@ -312,29 +311,18 @@ void io_pin_init(){
     PORTD |=  (1 << PD2);
 
     DDRB &= ~(1 << PB0);   // PB0 as input
-    PORTB |= (1 << PB0);   // Enable pull-up resistor on PB0
-
-    
+    // PORTB |= (1 << PB0);   // Enable pull-up resistor on PB0
 
 }
 
 void pin_interrupt_init() {
     // Set PB0 as input and pull-up
-    // DDRB &= ~(1 << PB0);
+    DDRB &= ~(1 << PB0);
     // PORTB |= (1 << PB0);
-    // should this be pulled up? it is set as an input
 
     // Enable Pin Change Interrupt for PB[7:0] (PCIE0)
     PCICR |= (1 << PCIE0);      // Enable PCINT7..0 group (Port B)
     PCMSK0 |= (1 << PCINT0);    // Enable PB0 (PCINT0)
-}
-
-static inline void pulse_once(void)
-{
-    PORTD |=  (1<<PD7);   // HIGH 20 ms
-    _delay_ms(20);
-    PORTD &= ~(1<<PD7);   // LOW gap 0.5 s
-    _delay_ms(500);
 }
 
 void send_forecast_serial(const char* pred) {
@@ -344,7 +332,10 @@ void send_forecast_serial(const char* pred) {
 
     uint8_t i;
     for (i = 0; i < pulses; i++) {
-        pulse_once();
+        PORTD |= (1 << PD7);    // Set PB0 high
+        _delay_ms(20);          // Pulse HIGH duration
+        PORTD &= ~(1 << PD7);   // Set PB0 low
+        _delay_ms(500);         // Time between pulses
     }
 
     set_input_mode_pb0();  // Back to input mode
@@ -368,13 +359,11 @@ void disable_pb0() {
     PCICR &= ~(1 << PCIE0);    // Disable Pin Change Interrupt for Port B group
     PCMSK0 &= ~(1 << PCINT0);  // Mask off PB0
 
-    // // Set PB0 as output
-    // DDRD |= (1 << PB0);
+    // Set PB0 as output
+    DDRD |= (1 << PB0);
 
-    // // Drive low initially
-    // PORTD &= ~(1 << PB0);
-    DDRB   |=  (1<<PB0);       // make PB0 an output
-    PORTB  &= ~(1<<PB0);       // drive it low
+    // Drive low initially
+    PORTD &= ~(1 << PB0);
 }
 
 
@@ -426,3 +415,4 @@ ISR(PCINT0_vect) {
     seconds_elapsed = 0;
     current_state = sampling_period;
 }
+
