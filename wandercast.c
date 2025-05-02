@@ -23,6 +23,7 @@
 #include "weatherSensors.h"
 #include "zambretti.h"
 #include "radio.h"
+#include <stddef.h>
 
 
 struct PressureData {
@@ -313,6 +314,8 @@ void io_pin_init(){
     DDRB &= ~(1 << PB0);   // PB0 as input
     PORTB |= (1 << PB0);   // Enable pull-up resistor on PB0
 
+    
+
 }
 
 void pin_interrupt_init() {
@@ -326,6 +329,14 @@ void pin_interrupt_init() {
     PCMSK0 |= (1 << PCINT0);    // Enable PB0 (PCINT0)
 }
 
+static inline void pulse_once(void)
+{
+    PORTD |=  (1<<PD7);   // HIGH 20 ms
+    _delay_ms(20);
+    PORTD &= ~(1<<PD7);   // LOW gap 0.5 s
+    _delay_ms(500);
+}
+
 void send_forecast_serial(const char* pred) {
     int pulses = pred_to_pulses(pred);
     set_output_mode_pd7();  // PB0 instead of PD4
@@ -333,10 +344,7 @@ void send_forecast_serial(const char* pred) {
 
     uint8_t i;
     for (i = 0; i < pulses; i++) {
-        PORTD |= (1 << PD7);    // Set PB0 high
-        _delay_ms(20);          // Pulse HIGH duration
-        PORTD &= ~(1 << PD7);   // Set PB0 low
-        _delay_ms(500);         // Time between pulses
+        pulse_once();
     }
 
     set_input_mode_pb0();  // Back to input mode
@@ -418,4 +426,3 @@ ISR(PCINT0_vect) {
     seconds_elapsed = 0;
     current_state = sampling_period;
 }
-

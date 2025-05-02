@@ -28,8 +28,6 @@
 // === New: Global variable to count pulses ===
 volatile uint16_t pulse_count = 0;
 
-
-
 // Function prototypes
 void io_pin_init();
 void lcd_init();
@@ -63,6 +61,9 @@ int main(void)
     TWSR = 0; // Set prescaler for 1
     TWBR = BDIV ; // Set bit rate register
 
+    uint16_t last_pulse_count = 0;
+    uint32_t no_pulse_timer_ms = 0; 
+    int forecast_ready = 0;
     // Init hardware
     io_pin_init();
     external_interrupt_init();  // initialize interrupt to count 
@@ -90,19 +91,17 @@ int main(void)
     int windDir;
     int windSpd;
     char buffer[16]; // For displaying pulse count
-    int no_pulse_timer_ms = 0;
-    uint16_t last_pulse_count = 0; //vic additon
-    int forecast_ready = 0;
 
     while(1) {
 
-        // Force sampling if button pressed
+        // Force sampling if button pressedmake
         if (!(PINB & (1<<PB1))){
             lcd_clear_screen();
             lcd_move_cursor(0,0);
             send_forced_signal();
             // lcd_move_
             lcd_write_string("button press!!!");
+            _delay_ms(1000);
         }else{
             lcd_clear_screen();
         }
@@ -127,7 +126,6 @@ int main(void)
         if (forecast_ready) {
             const char* forecast = get_forecast_from_pulse_count(pulse_count);
             lcd_write_string(forecast);
-            _delay_ms(2000);
     
             // Reset for next message
             pulse_count = 0;
@@ -144,7 +142,7 @@ int main(void)
         //     radio_rx_poll();  // Poll and display
         // #endif
     
-        _delay_ms(500);
+        _delay_ms(100);
     }
     
     
@@ -187,9 +185,9 @@ void io_pin_init() {
 void external_interrupt_init() {
     // EICRA |= (1 << ISC01);  // Trigger INT0 on falling edge
     // EIMSK |= (1 << INT0);   // Enable INT0 interrupt
-    EICRA  = (1<<ISC01);       
+    // EICRA  = (1<<ISC01);       
     EICRA |= (1<<ISC11);         
-    EIMSK |= (1<<INT0) | (1<<INT1);
+    EIMSK |= (1<<INT1);
     sei();                  // Global interrupt enable
 }
 
@@ -210,6 +208,5 @@ void send_forced_signal() {
     PORTD &= ~(1 << PD4);
     _delay_ms(500);
 }
-
 
 
