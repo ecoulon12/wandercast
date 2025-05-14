@@ -45,7 +45,9 @@ void lcd_init(){
 	// delay 120us
     _delay_us(120);
 	// Send the byte 0x0f     Display on, cursor on, cursor blinks
-    i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, 0x0F}, 2, NULL, 0);
+    // i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, 0x0F}, 2, NULL, 0);
+    i2c_io(LCD_I2C_ADDRESS, (uint8_t[]){0x80, 0x0C}, 2, NULL, 0);
+// 0x0C = Display ON, Cursor OFF, Blink OFF
 	// delay 120us
     _delay_us(120);
 	// Send the byte 0x01     Clear display
