@@ -22,13 +22,15 @@ PressureTrend determine_pressure_trend(const int pressure_log[], uint8_t pressur
 
 
 const char* zambretti_forecast(float pressure_hPa, PressureTrend trend) {
+    int easterly = (wind_dir_deg >= 90 && wind_dir_deg <= 150);
+
     if (trend == PRESSURE_RISING) {
         if (pressure_hPa >= 1020) {
             return "Fine Weather";
         } else if (pressure_hPa >= 1005) {
             return "Fair Weather";
         } else {
-            return "Unsettled, Improving";
+            return easterly ? "Unsettled" : "Unsettled, Improving";
         }
     } else if (trend == PRESSURE_STEADY) {
         if (pressure_hPa >= 1015) {
@@ -38,7 +40,7 @@ const char* zambretti_forecast(float pressure_hPa, PressureTrend trend) {
         }
     } else if (trend == PRESSURE_FALLING) {
         if (pressure_hPa >= 1010) {
-            return "Fair, then Showers";
+            return easterly ? "Showers" : "Fair, then Showers";
         } else if (pressure_hPa >= 995) {
             return "Showers";
         } else {

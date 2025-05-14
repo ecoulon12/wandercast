@@ -48,7 +48,7 @@ volatile int speed = 0;
 volatile int rainfall_sleep_um = 0;
 int test = 0;
 volatile char ptrend;
-int real = 0;
+int real = 1; // DEFINE REAL = 0 for testing !!!
 volatile uint8_t forced_sample_requested = 0;
 
 
@@ -133,13 +133,15 @@ int main(void){
             lcd_write_string("sending forecast ...");
             _delay_ms(500);
             //radio_send(zambretti()); // return the zambretti prediction as a char array
-            send_forecast_serial(zambretti_forecast(pdata.currPres,ptrend, dir, speed));
+            dir = 100;
+            send_forecast_serial(zambretti_forecast(pdata.currPres,dir, ptrend, dir, speed));
             lcd_clear_screen();
         }
         // UPDATE THE SCREEN HERE if needed
         if (changed){
             // update LCD here
-            print_status(ptrend, pdata.currPres, rainfall_sleep_um , speed ,dir , zambretti_forecast(pdata.currPres,ptrend, dir, speed));
+            dir = 100;
+            print_status(ptrend, pdata.currPres, rainfall_sleep_um , speed ,dir , zambretti_forecast(pdata.currPres,dir, ptrend, dir, speed));
             //changed = 0;
         }
 
@@ -151,24 +153,24 @@ void get_pressure_temp_hum(int32_t *temp, uint32_t *pres, uint32_t *hum){
     // float temp, press, hum;
 
     if (real){
-    // bme280_trigger_measurement();
-        // while (bme280_is_measuring()) {
-        //     _delay_ms(2);
-        //     timeout += 2;
-        //     if (timeout > 100) {
-        //         lcd_clear_screen();
-        //         lcd_write_string("Measure Fail");
-        //         _delay_ms(500);
-        //         changed = 1;
-        //         break;  
-        //     }
-        // }
-        // bme280_read_environment(temp, pres, hum);
-        // return;
+    bme280_trigger_measurement();
+        while (bme280_is_measuring()) {
+            _delay_ms(2);
+            timeout += 2;
+            if (timeout > 100) {
+                lcd_clear_screen();
+                lcd_write_string("Measure Fail");
+                _delay_ms(500);
+                changed = 1;
+                break;  
+            }
+        }
+        bme280_read_environment(temp, pres, hum);
+        //return;
 
-        //return temp pres hum ;
+        return temp pres hum ;
         // STORE TEMP, PRESS, HUM SOMEWHERE
-    } else{
+    } else{ // use this for testing!!
         int fakePressure[5] = { 1011,1011,1011,1011,1008};
 
         int i = 0;
